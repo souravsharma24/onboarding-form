@@ -203,7 +203,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
 
   const nextStep = () => {
     if (validateStep(currentStep)) {
-      const updatedCompletedSteps = [...new Set([...formData.completedSteps, currentStep])]
+      const updatedCompletedSteps = Array.from(new Set([...formData.completedSteps, currentStep]))
       setFormData(prev => ({ ...prev, completedSteps: updatedCompletedSteps }))
       
       if (currentStep < steps.length) {
@@ -236,7 +236,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
     try {
       const finalData = {
         ...formData,
-        completedSteps: [...new Set([...formData.completedSteps, currentStep])],
+        completedSteps: Array.from(new Set([...formData.completedSteps, currentStep])),
         lastSaved: new Date().toISOString()
       }
       
