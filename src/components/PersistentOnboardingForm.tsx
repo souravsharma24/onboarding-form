@@ -203,8 +203,12 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
 
   const nextStep = () => {
     if (validateStep(currentStep)) {
-      const updatedCompletedSteps = Array.from(new Set([...formData.completedSteps, currentStep]))
-      setFormData(prev => ({ ...prev, completedSteps: updatedCompletedSteps }))
+      // Add current step to completed steps if not already present
+      const completedSteps = formData.completedSteps.includes(currentStep) 
+        ? formData.completedSteps 
+        : [...formData.completedSteps, currentStep]
+      
+      setFormData(prev => ({ ...prev, completedSteps }))
       
       if (currentStep < steps.length) {
         setCurrentStep(currentStep + 1)
@@ -234,9 +238,14 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
     setSubmitSuccess(false)
 
     try {
+      // Add current step to completed steps if not already present
+      const completedSteps = formData.completedSteps.includes(currentStep) 
+        ? formData.completedSteps 
+        : [...formData.completedSteps, currentStep]
+      
       const finalData = {
         ...formData,
-        completedSteps: Array.from(new Set([...formData.completedSteps, currentStep])),
+        completedSteps,
         lastSaved: new Date().toISOString()
       }
       
