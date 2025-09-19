@@ -21,7 +21,6 @@ import {
   CheckCircle,
   Loader2
 } from 'lucide-react'
-import { bridgeApi, transformFormDataToBridgeFormat } from '@/lib/bridgeApi'
 import { saveOnboardingData, loadOnboardingData, saveInviteCode, loadInviteCode, clearOnboardingData } from '@/lib/localStorage'
 
 interface FormData {
@@ -253,26 +252,17 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
         lastSaved: new Date().toISOString()
       }
       
-      // Save final data locally first
+      // Save final data locally
       saveOnboardingData(finalData)
       
-      // Transform data for Bridge API
-      const bridgeData = transformFormDataToBridgeFormat(finalData)
+      // Simulate successful submission
+      setSubmitSuccess(true)
       
-      // Submit to Bridge API
-      const response = await bridgeApi.submitUserData(bridgeData)
-      
-      if (response.success) {
-        setSubmitSuccess(true)
-        
-        // Clear saved data after successful submission
-        setTimeout(() => {
-          clearOnboardingData()
-          onComplete(finalData)
-        }, 2000)
-      } else {
-        throw new Error(response.message || 'Failed to submit data to Bridge API')
-      }
+      // Show success message and complete onboarding
+      setTimeout(() => {
+        clearOnboardingData()
+        onComplete(finalData)
+      }, 2000)
       
     } catch (error) {
       console.error('Error submitting form:', error)

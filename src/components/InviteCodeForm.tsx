@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, CheckCircle, AlertCircle } from 'lucide-react'
-import { bridgeApi } from '@/lib/bridgeApi'
 import { saveInviteCode, loadInviteCode } from '@/lib/localStorage'
 
 interface InviteCodeFormProps {
@@ -30,39 +29,23 @@ export default function InviteCodeForm({ onInviteCodeSubmit, onSkip }: InviteCod
     setIsValidating(true)
     setError('')
     
-    try {
-      // Try Bridge API validation first
-      const response = await bridgeApi.validateInviteCode(code)
-      
-      setIsValidating(false)
-      
-      if (response.valid) {
-        setIsValid(true)
-        saveInviteCode(code)
-        return true
-      } else {
-        setError(response.message || 'Invalid invite code. Please check and try again.')
-        setIsValid(false)
-        return false
-      }
-    } catch (error) {
-      // Fallback to mock validation if API fails
-      console.warn('Bridge API validation failed, using fallback:', error)
-      
-      const validCodes = ['INNOVO2024', 'WELCOME123', 'DEMO2024', 'TESTCODE']
-      const isValidCode = validCodes.includes(code.toUpperCase())
-      
-      setIsValidating(false)
-      
-      if (isValidCode) {
-        setIsValid(true)
-        saveInviteCode(code)
-        return true
-      } else {
-        setError('Invalid invite code. Please check and try again.')
-        setIsValid(false)
-        return false
-      }
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // Local validation with predefined valid codes
+    const validCodes = ['INNOVO2024', 'WELCOME123', 'DEMO2024', 'TESTCODE', 'BRIDGE456']
+    const isValidCode = validCodes.includes(code.toUpperCase())
+    
+    setIsValidating(false)
+    
+    if (isValidCode) {
+      setIsValid(true)
+      saveInviteCode(code)
+      return true
+    } else {
+      setError('Invalid invite code. Please check and try again.')
+      setIsValid(false)
+      return false
     }
   }
 
