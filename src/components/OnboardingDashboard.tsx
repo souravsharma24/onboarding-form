@@ -96,40 +96,40 @@ export default function OnboardingDashboard({ onNavigateToSection, onManageColla
   if (!user) return null
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Welcome Card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`rounded-lg shadow-sm border p-6 ${
+        className={`rounded-lg shadow-sm border p-4 sm:p-6 ${
           theme === 'dark' 
             ? 'bg-gray-800 border-gray-700' 
             : 'bg-white border-gray-200'
         }`}
       >
-        <h1 className={`text-3xl font-bold mb-2 ${
+        <h1 className={`text-2xl sm:text-3xl font-bold mb-2 ${
           theme === 'dark' ? 'text-white' : 'text-gray-900'
         }`}>
           Welcome, {user.displayName.split(' ')[0]}!
         </h1>
-        <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
+        <p className={`text-sm sm:text-base ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
           Manage the Innovo Onboarding Application for {user.companyName}.
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Onboarding Form Card */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          className={`rounded-lg shadow-sm border p-6 ${
+          className={`rounded-lg shadow-sm border p-4 sm:p-6 ${
             theme === 'dark' 
               ? 'bg-gray-800 border-gray-700' 
               : 'bg-white border-gray-200'
           }`}
         >
-          <h2 className={`text-xl font-semibold mb-4 ${
+          <h2 className={`text-lg sm:text-xl font-semibold mb-4 ${
             theme === 'dark' ? 'text-white' : 'text-gray-900'
           }`}>
             Your Onboarding Form
@@ -202,13 +202,13 @@ export default function OnboardingDashboard({ onNavigateToSection, onManageColla
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
-          className={`rounded-lg shadow-sm border p-6 ${
+          className={`rounded-lg shadow-sm border p-4 sm:p-6 ${
             theme === 'dark' 
               ? 'bg-gray-800 border-gray-700' 
               : 'bg-white border-gray-200'
           }`}
         >
-          <h3 className={`text-lg font-semibold mb-4 ${
+          <h3 className={`text-base sm:text-lg font-semibold mb-4 ${
             theme === 'dark' ? 'text-white' : 'text-gray-900'
           }`}>
             Actions

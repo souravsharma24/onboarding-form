@@ -69,29 +69,29 @@ export default function InviteCodeForm({ onInviteCodeSubmit, onSkip }: InviteCod
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center p-4 sm:p-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md"
+        className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-md"
       >
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-2xl">i</span>
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <span className="text-white font-bold text-xl sm:text-2xl">i</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Innovo</h1>
-          <h2 className="text-xl font-semibold text-gray-700">New Customer Form</h2>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Innovo</h1>
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-700">New Customer Form</h2>
         </div>
 
         {/* Welcome Message */}
-        <div className="text-center mb-8">
-          <p className="text-gray-600 text-lg">Welcome! Please enter your invite code below:</p>
+        <div className="text-center mb-6 sm:mb-8">
+          <p className="text-gray-600 text-base sm:text-lg">Welcome! Please enter your invite code below:</p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div>
             <label htmlFor="inviteCode" className="block text-sm font-medium text-gray-700 mb-2">
               Invite Code
@@ -106,7 +106,7 @@ export default function InviteCodeForm({ onInviteCodeSubmit, onSkip }: InviteCod
                   setError('')
                   setIsValid(false)
                 }}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+                className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm sm:text-base ${
                   error ? 'border-red-500' : isValid ? 'border-green-500' : 'border-gray-300'
                 }`}
                 placeholder="Enter your invite code"
@@ -168,8 +168,8 @@ export default function InviteCodeForm({ onInviteCodeSubmit, onSkip }: InviteCod
         </form>
 
         {/* Help Text */}
-        <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-600 text-center">
+        <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-gray-50 rounded-lg">
+          <p className="text-xs sm:text-sm text-gray-600 text-center">
             Need help? Contact our support team at{' '}
             <a href="mailto:support@innovomarkets.com" className="text-primary-600 hover:underline">
               support@innovomarkets.com

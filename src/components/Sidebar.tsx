@@ -64,7 +64,7 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   return (
     <div className={`bg-white dark:bg-gray-800 h-screen border-r border-gray-200 dark:border-gray-700 transition-all duration-300 flex flex-col ${
       isCollapsed ? 'w-16' : 'w-64'
-    } hidden md:flex`}>
+    } hidden lg:flex`}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         {!isCollapsed && (

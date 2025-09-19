@@ -287,7 +287,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
       case 1:
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   First Name *
@@ -386,7 +386,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
               {errors.companyName && <p className="text-red-500 text-sm mt-1">{errors.companyName}</p>}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Job Title *
@@ -601,27 +601,27 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-4 sm:p-6">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
+        <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Customer Onboarding Form</h2>
-              <p className="text-gray-600 mt-1">Please complete all steps to get started</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Customer Onboarding Form</h2>
+              <p className="text-sm sm:text-base text-gray-600 mt-1">Please complete all steps to get started</p>
             </div>
             <button
               onClick={onBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors mt-2 sm:mt-0"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>Back to Dashboard</span>
+              <span className="text-sm sm:text-base">Back to Dashboard</span>
             </button>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">
               Step {currentStep} of {steps.length}
@@ -651,13 +651,13 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
         </div>
 
         {/* Step Navigation */}
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
+        <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between overflow-x-auto">
             {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
+              <div key={step.id} className="flex items-center flex-shrink-0">
                 <button
                   onClick={() => goToStep(step.id)}
-                  className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${
+                  className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 transition-colors ${
                     currentStep > step.id
                       ? 'bg-primary-600 border-primary-600 text-white'
                       : currentStep === step.id
@@ -668,13 +668,13 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                   }`}
                 >
                   {currentStep > step.id || formData.completedSteps.includes(step.id - 1) ? (
-                    <Check className="w-5 h-5" />
+                    <Check className="w-4 h-4 sm:w-5 sm:h-5" />
                   ) : (
-                    <step.icon className="w-5 h-5" />
+                    <step.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                 </button>
                 {index < steps.length - 1 && (
-                  <div className={`w-16 h-0.5 mx-2 ${
+                  <div className={`w-8 sm:w-16 h-0.5 mx-1 sm:mx-2 ${
                     currentStep > step.id || formData.completedSteps.includes(step.id - 1) ? 'bg-primary-600' : 'bg-gray-300'
                   }`} />
                 )}
@@ -684,7 +684,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
         </div>
 
         {/* Form Content */}
-        <div className="px-6 py-8">
+        <div className="px-4 sm:px-6 py-6 sm:py-8">
           {/* Submission Status */}
           {submitError && (
             <motion.div
@@ -745,11 +745,11 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
         </div>
 
         {/* Navigation Buttons */}
-        <div className="px-6 py-4 border-t border-gray-200 flex justify-between">
+        <div className="px-4 sm:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-0">
           <button
             onClick={prevStep}
             disabled={currentStep === 1}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+            className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors w-full sm:w-auto ${
               currentStep === 1
                 ? 'text-gray-400 cursor-not-allowed'
                 : 'text-gray-700 hover:bg-gray-100'
@@ -762,7 +762,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
           {currentStep < steps.length ? (
             <button
               onClick={nextStep}
-              className="flex items-center space-x-2 bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+              className="flex items-center justify-center space-x-2 bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors w-full sm:w-auto"
             >
               <span>Next</span>
               <ChevronRight className="w-4 h-4" />
@@ -771,7 +771,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
             <button
               onClick={handleSubmit}
               disabled={isSubmitting || submitSuccess}
-              className={`flex items-center space-x-2 px-6 py-2 rounded-lg transition-colors ${
+              className={`flex items-center justify-center space-x-2 px-6 py-2 rounded-lg transition-colors w-full sm:w-auto ${
                 isSubmitting || submitSuccess
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-success-600 hover:bg-success-700'
