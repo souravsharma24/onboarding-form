@@ -1,6 +1,4 @@
-// Enhanced local storage service with error handling and data validation
-
-import { config } from './config'
+// Simple local storage service with error handling
 
 export interface StorageItem<T = any> {
   data: T
@@ -17,8 +15,8 @@ export interface StorageOptions {
 }
 
 export class LocalStorageService {
-  private static readonly DEFAULT_VERSION = config.localStorage.version
-  private static readonly STORAGE_PREFIX = config.localStorage.prefix
+  private static readonly DEFAULT_VERSION = '1.0.0'
+  private static readonly STORAGE_PREFIX = 'innovo_'
 
   /**
    * Save data to localStorage with metadata
@@ -236,29 +234,29 @@ export class LocalStorageService {
 // Convenience functions for common use cases
 export const saveOnboardingData = (data: any): boolean => {
   return LocalStorageService.save('onboarding_data', data, {
-    version: config.localStorage.version,
-    ttl: config.localStorage.onboardingDataTtl
+    version: '1.0.0',
+    ttl: 7 * 24 * 60 * 60 * 1000 // 7 days
   })
 }
 
 export const loadOnboardingData = (): any => {
   return LocalStorageService.load('onboarding_data', {
-    version: config.localStorage.version,
-    ttl: config.localStorage.onboardingDataTtl
+    version: '1.0.0',
+    ttl: 7 * 24 * 60 * 60 * 1000 // 7 days
   })
 }
 
 export const saveInviteCode = (code: string): boolean => {
   return LocalStorageService.save('invite_code', code, {
-    version: config.localStorage.version,
-    ttl: config.localStorage.inviteCodeTtl
+    version: '1.0.0',
+    ttl: 24 * 60 * 60 * 1000 // 24 hours
   })
 }
 
 export const loadInviteCode = (): string | null => {
   return LocalStorageService.load('invite_code', {
-    version: config.localStorage.version,
-    ttl: config.localStorage.inviteCodeTtl
+    version: '1.0.0',
+    ttl: 24 * 60 * 60 * 1000 // 24 hours
   })
 }
 

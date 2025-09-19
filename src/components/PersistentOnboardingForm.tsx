@@ -21,7 +21,7 @@ import {
   CheckCircle,
   Loader2
 } from 'lucide-react'
-import { bridgeApi, transformFormDataToBridgeFormat, BridgeApiError } from '@/lib/bridgeApi'
+import { bridgeApi, transformFormDataToBridgeFormat } from '@/lib/bridgeApi'
 import { saveOnboardingData, loadOnboardingData, saveInviteCode, loadInviteCode, clearOnboardingData } from '@/lib/localStorage'
 
 interface FormData {
@@ -272,12 +272,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
       
     } catch (error) {
       console.error('Error submitting form:', error)
-      
-      if (error instanceof BridgeApiError) {
-        setSubmitError(`API Error: ${error.message}`)
-      } else {
-        setSubmitError('Failed to submit form. Please try again or contact support.')
-      }
+      setSubmitError('Failed to submit form. Please try again or contact support.')
     } finally {
       setIsSubmitting(false)
     }

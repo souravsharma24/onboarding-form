@@ -1,13 +1,6 @@
-// Application configuration
+// Simple application configuration
 
 export const config = {
-  bridgeApi: {
-    baseUrl: process.env.NEXT_PUBLIC_BRIDGE_API_URL || 'https://api.bridge.example.com',
-    apiKey: process.env.NEXT_PUBLIC_BRIDGE_API_KEY || 'demo-api-key',
-    timeout: 30000, // 30 seconds
-    retryAttempts: 3,
-    retryDelay: 1000 // 1 second
-  },
   localStorage: {
     prefix: 'innovo_',
     version: '1.0.0',
@@ -19,6 +12,6 @@ export const config = {
   }
 }
 
-// Development mode configuration
+// Environment configuration
 export const isDevelopment = process.env.NODE_ENV === 'development'
 export const isProduction = process.env.NODE_ENV === 'production'
