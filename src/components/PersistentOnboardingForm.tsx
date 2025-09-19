@@ -201,12 +201,18 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
     return Object.keys(newErrors).length === 0
   }
 
+  // Helper function to add step to completed steps without using Set
+  const addToCompletedSteps = (steps: number[], newStep: number): number[] => {
+    if (steps.includes(newStep)) {
+      return steps
+    }
+    return [...steps, newStep]
+  }
+
   const nextStep = () => {
     if (validateStep(currentStep)) {
       // Add current step to completed steps if not already present
-      const completedSteps = formData.completedSteps.includes(currentStep) 
-        ? formData.completedSteps 
-        : [...formData.completedSteps, currentStep]
+      const completedSteps = addToCompletedSteps(formData.completedSteps, currentStep)
       
       setFormData(prev => ({ ...prev, completedSteps }))
       
@@ -239,9 +245,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
 
     try {
       // Add current step to completed steps if not already present
-      const completedSteps = formData.completedSteps.includes(currentStep) 
-        ? formData.completedSteps 
-        : [...formData.completedSteps, currentStep]
+      const completedSteps = addToCompletedSteps(formData.completedSteps, currentStep)
       
       const finalData = {
         ...formData,
