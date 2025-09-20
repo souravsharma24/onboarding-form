@@ -108,6 +108,7 @@ export default function OnboardingManager({ onBack }: OnboardingManagerProps) {
               onBack={handleBackToDashboard}
               onNext={handleNextSection}
               onPrevious={handlePreviousSection}
+              onNavigateToSection={handleNavigateToSection}
             />
           </motion.div>
         )}

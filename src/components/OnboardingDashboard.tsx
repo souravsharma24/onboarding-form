@@ -21,13 +21,13 @@ interface OnboardingData {
 }
 
 const defaultSections: Section[] = [
-  { id: 'your-info', title: 'Your Information', requiredFields: 3, completedFields: 0 },
-  { id: 'business-info', title: 'Business Information', requiredFields: 10, completedFields: 0 },
-  { id: 'ownership', title: 'Ownership and Management', requiredFields: 6, completedFields: 0 },
-  { id: 'docs', title: 'Business Documentation', requiredFields: 3, completedFields: 0 },
-  { id: 'funds', title: 'Source of Funds', requiredFields: 2, completedFields: 0 },
-  { id: 'compliance', title: 'Compliance and Business Activity', requiredFields: 4, completedFields: 0 },
-  { id: 'terms', title: 'Terms and Conditions', requiredFields: 1, completedFields: 0 },
+  { id: 'your-info', title: 'Your Information', requiredFields: 11, completedFields: 0 },
+  { id: 'business-info', title: 'Business Information', requiredFields: 13, completedFields: 0 },
+  { id: 'ownership', title: 'Ownership and Management', requiredFields: 13, completedFields: 0 },
+  { id: 'docs', title: 'Business Documentation', requiredFields: 5, completedFields: 0 },
+  { id: 'funds', title: 'Source of Funds', requiredFields: 7, completedFields: 0 },
+  { id: 'compliance', title: 'Compliance and Business Activity', requiredFields: 11, completedFields: 0 },
+  { id: 'terms', title: 'Terms and Conditions', requiredFields: 6, completedFields: 0 },
 ]
 
 interface OnboardingDashboardProps {

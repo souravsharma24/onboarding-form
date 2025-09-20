@@ -152,7 +152,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
       }
       const success = saveOnboardingData(dataToSave)
       if (success) {
-        setLastSaved(dataToSave.lastSaved)
+      setLastSaved(dataToSave.lastSaved)
       }
     } catch (error) {
       console.error('Error saving data:', error)
@@ -286,10 +286,10 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                   First Name *
                 </label>
                 <input
@@ -299,11 +299,11 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                   className={`form-input ${errors.firstName ? 'form-input-error' : ''}`}
                   placeholder="Enter your first name"
                 />
-                {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
+                {errors.firstName && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.firstName}</p>}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                   Last Name *
                 </label>
                 <input
@@ -313,16 +313,16 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                   className={`form-input ${errors.lastName ? 'form-input-error' : ''}`}
                   placeholder="Enter your last name"
                 />
-                {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
+                {errors.lastName && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.lastName}</p>}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 Email Address *
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                 <input
                   type="email"
                   value={formData.email}
@@ -331,15 +331,15 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                   placeholder="Enter your email address"
                 />
               </div>
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                {errors.email && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.email}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 Phone Number *
               </label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                 <input
                   type="tel"
                   value={formData.phone}
@@ -348,15 +348,15 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                   placeholder="Enter your phone number"
                 />
               </div>
-              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                {errors.phone && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.phone}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 Date of Birth *
               </label>
               <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                 <input
                   type="date"
                   value={formData.dateOfBirth}
@@ -364,16 +364,16 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                   className={`form-input pl-10 ${errors.dateOfBirth ? 'form-input-error' : ''}`}
                 />
               </div>
-              {errors.dateOfBirth && <p className="text-red-500 text-sm mt-1">{errors.dateOfBirth}</p>}
+                {errors.dateOfBirth && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.dateOfBirth}</p>}
             </div>
           </div>
         )
 
       case 2:
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 Company Name *
               </label>
               <input
@@ -383,12 +383,12 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                 className={`form-input ${errors.companyName ? 'form-input-error' : ''}`}
                 placeholder="Enter your company name"
               />
-              {errors.companyName && <p className="text-red-500 text-sm mt-1">{errors.companyName}</p>}
+                {errors.companyName && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.companyName}</p>}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                   Job Title *
                 </label>
                 <input
@@ -398,11 +398,11 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                   className={`form-input ${errors.jobTitle ? 'form-input-error' : ''}`}
                   placeholder="Enter your job title"
                 />
-                {errors.jobTitle && <p className="text-red-500 text-sm mt-1">{errors.jobTitle}</p>}
+                {errors.jobTitle && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.jobTitle}</p>}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                   Industry *
                 </label>
                 <select
@@ -419,12 +419,12 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                   <option value="retail">Retail</option>
                   <option value="other">Other</option>
                 </select>
-                {errors.industry && <p className="text-red-500 text-sm mt-1">{errors.industry}</p>}
+                {errors.industry && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.industry}</p>}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 Company Size *
               </label>
               <select
@@ -439,15 +439,15 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                 <option value="201-500">201-500 employees</option>
                 <option value="500+">500+ employees</option>
               </select>
-              {errors.companySize && <p className="text-red-500 text-sm mt-1">{errors.companySize}</p>}
+                {errors.companySize && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.companySize}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 Company Address *
               </label>
               <div className="relative">
-                <MapPin className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
+                <MapPin className="absolute left-3 top-3 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                 <textarea
                   value={formData.address}
                   onChange={(e) => handleInputChange('address', e.target.value)}
@@ -456,16 +456,16 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                   placeholder="Enter your company address"
                 />
               </div>
-              {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+                {errors.address && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.address}</p>}
             </div>
           </div>
         )
 
       case 3:
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 Business Type *
               </label>
               <select
@@ -480,11 +480,11 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                 <option value="sole-proprietorship">Sole Proprietorship</option>
                 <option value="non-profit">Non-Profit</option>
               </select>
-              {errors.businessType && <p className="text-red-500 text-sm mt-1">{errors.businessType}</p>}
+                {errors.businessType && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.businessType}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 Annual Revenue *
               </label>
               <select
@@ -499,11 +499,11 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                 <option value="1m-5m">$1,000,000 - $5,000,000</option>
                 <option value="5m+">$5,000,000+</option>
               </select>
-              {errors.annualRevenue && <p className="text-red-500 text-sm mt-1">{errors.annualRevenue}</p>}
+                {errors.annualRevenue && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.annualRevenue}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 Tax ID / EIN *
               </label>
               <input
@@ -513,11 +513,11 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                 className={`form-input ${errors.taxId ? 'form-input-error' : ''}`}
                 placeholder="Enter your Tax ID or EIN"
               />
-              {errors.taxId && <p className="text-red-500 text-sm mt-1">{errors.taxId}</p>}
+                {errors.taxId && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.taxId}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 Company Website
               </label>
               <input
@@ -533,9 +533,9 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
 
       case 4:
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 How did you hear about us? *
               </label>
               <select
@@ -551,11 +551,11 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                 <option value="event">Event/Conference</option>
                 <option value="other">Other</option>
               </select>
-              {errors.referralSource && <p className="text-red-500 text-sm mt-1">{errors.referralSource}</p>}
+                {errors.referralSource && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.referralSource}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 Areas of Interest *
               </label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -581,7 +581,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                 Additional Notes
               </label>
               <textarea
@@ -601,10 +601,10 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div className="w-full max-w-4xl mx-auto p-2 sm:p-4 md:p-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 w-full overflow-hidden">
         {/* Header */}
-        <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+        <div className="px-2 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Customer Onboarding Form</h2>
@@ -612,29 +612,29 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
             </div>
             <button
               onClick={onBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors mt-2 sm:mt-0"
+              className="flex items-center justify-center sm:justify-start space-x-1 sm:space-x-2 text-gray-600 hover:text-gray-800 transition-colors mt-2 sm:mt-0 px-2 py-1 sm:px-0 sm:py-0 rounded-md sm:rounded-none hover:bg-gray-100 sm:hover:bg-transparent"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm sm:text-base">Back to Dashboard</span>
+              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-sm md:text-base">Back to Dashboard</span>
             </button>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">
+        <div className="px-2 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2 sm:gap-0">
+            <span className="text-xs sm:text-sm font-medium text-gray-700">
               Step {currentStep} of {steps.length}
             </span>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {isSaving && (
-                <div className="flex items-center space-x-2 text-sm text-gray-500">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600"></div>
+                <div className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-500">
+                  <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-primary-600"></div>
                   <span>Saving...</span>
                 </div>
               )}
               {lastSaved && !isSaving && (
-                <span className="text-sm text-gray-500">
+                <span className="text-xs sm:text-sm text-gray-500 truncate">
                   Last saved: {formatLastSaved(lastSaved)}
                 </span>
               )}
@@ -651,7 +651,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
         </div>
 
         {/* Step Navigation */}
-        <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+        <div className="px-2 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200">
           <div className="flex items-center justify-between overflow-x-auto">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center flex-shrink-0">
@@ -684,7 +684,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
         </div>
 
         {/* Form Content */}
-        <div className="px-4 sm:px-6 py-6 sm:py-8">
+        <div className="px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
           {/* Submission Status */}
           {submitError && (
             <motion.div
@@ -745,56 +745,150 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
         </div>
 
         {/* Navigation Buttons */}
-        <div className="px-4 sm:px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-0">
-          <button
-            onClick={prevStep}
-            disabled={currentStep === 1}
-            className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors w-full sm:w-auto ${
-              currentStep === 1
-                ? 'text-gray-400 cursor-not-allowed'
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            <ChevronLeft className="w-4 h-4" />
-            <span>Previous</span>
-          </button>
-
-          {currentStep < steps.length ? (
-            <button
-              onClick={nextStep}
-              className="flex items-center justify-center space-x-2 bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors w-full sm:w-auto"
-            >
-              <span>Next</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={isSubmitting || submitSuccess}
-              className={`flex items-center justify-center space-x-2 px-6 py-2 rounded-lg transition-colors w-full sm:w-auto ${
-                isSubmitting || submitSuccess
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-success-600 hover:bg-success-700'
-              } text-white`}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Submitting...</span>
-                </>
-              ) : submitSuccess ? (
-                <>
-                  <CheckCircle className="w-4 h-4" />
-                  <span>Submitted</span>
-                </>
+        <div className="px-2 sm:px-4 md:px-6 py-4 border-t border-gray-200">
+          <div className="flex flex-col gap-3 w-full">
+            {/* Mobile: Stack all buttons vertically */}
+            <div className="flex flex-col gap-2 sm:hidden w-full">
+              <button
+                onClick={prevStep}
+                disabled={currentStep === 1}
+                className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors w-full text-sm ${
+                  currentStep === 1
+                    ? 'text-gray-400 cursor-not-allowed bg-gray-50'
+                    : 'text-gray-700 hover:bg-gray-100 bg-gray-50 hover:bg-gray-200'
+                }`}
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Previous</span>
+              </button>
+              
+              <button
+                onClick={() => {
+                  const completedSteps = addToCompletedSteps(formData.completedSteps, currentStep)
+                  const dataToSave = {
+                    ...formData,
+                    completedSteps,
+                    lastSaved: new Date().toISOString()
+                  }
+                  saveOnboardingData(dataToSave)
+                  setFormData(dataToSave)
+                }}
+                className="flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors w-full text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium"
+              >
+                <Save className="w-4 h-4" />
+                <span>Save Draft</span>
+              </button>
+              
+              {currentStep < steps.length ? (
+                <button
+                  onClick={nextStep}
+                  className="flex items-center justify-center space-x-2 bg-primary-600 text-white px-4 py-3 rounded-lg hover:bg-primary-700 transition-colors w-full text-sm font-medium"
+                >
+                  <span>Next & Save</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               ) : (
-                <>
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || submitSuccess}
+                  className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors w-full text-sm font-medium ${
+                    isSubmitting || submitSuccess
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-success-600 hover:bg-success-700'
+                  } text-white`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Submitting...</span>
+                    </>
+                  ) : submitSuccess ? (
+                    <>
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Submitted</span>
+                    </>
+                  ) : (
+                    <>
                   <Check className="w-4 h-4" />
                   <span>Submit</span>
-                </>
+                    </>
+                  )}
+                </button>
               )}
-            </button>
-          )}
+            </div>
+            
+            {/* Desktop: Horizontal layout */}
+            <div className="hidden sm:flex sm:justify-between gap-3 w-full">
+              <div className="flex gap-3">
+                <button
+                  onClick={prevStep}
+                  disabled={currentStep === 1}
+                  className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors text-sm ${
+                    currentStep === 1
+                      ? 'text-gray-400 cursor-not-allowed bg-gray-50'
+                      : 'text-gray-700 hover:bg-gray-100 bg-gray-50 hover:bg-gray-200'
+                  }`}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Previous</span>
+                </button>
+                
+                <button
+                  onClick={() => {
+                    const completedSteps = addToCompletedSteps(formData.completedSteps, currentStep)
+                    const dataToSave = {
+                      ...formData,
+                      completedSteps,
+                      lastSaved: new Date().toISOString()
+                    }
+                    saveOnboardingData(dataToSave)
+                    setFormData(dataToSave)
+                  }}
+                  className="flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Save Draft</span>
+                </button>
+              </div>
+              
+              {currentStep < steps.length ? (
+                <button
+                  onClick={nextStep}
+                  className="flex items-center justify-center space-x-2 bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+                >
+                  <span>Next & Save</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || submitSuccess}
+                  className={`flex items-center justify-center space-x-2 px-6 py-2 rounded-lg transition-colors text-sm font-medium ${
+                    isSubmitting || submitSuccess
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-success-600 hover:bg-success-700'
+                  } text-white`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Submitting...</span>
+                    </>
+                  ) : submitSuccess ? (
+                    <>
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Submitted</span>
+                    </>
+                  ) : (
+                    <>
+                  <Check className="w-4 h-4" />
+                  <span>Submit</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
