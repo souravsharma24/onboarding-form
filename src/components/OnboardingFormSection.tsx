@@ -256,10 +256,10 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
   const completion = calculateCompletion()
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Sidebar */}
-        <div className="lg:col-span-1">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
+        {/* Sidebar - Hidden on mobile, visible on desktop */}
+        <div className="hidden lg:block lg:col-span-1">
           <div className={`rounded-lg shadow-sm border p-4 sticky top-6 ${
             theme === 'dark' 
               ? 'bg-gray-800 border-gray-700' 
@@ -293,25 +293,59 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
         </div>
 
         {/* Main Form */}
-        <div className="lg:col-span-3">
+        <div className="col-span-1 lg:col-span-3">
+          {/* Mobile Section Navigation */}
+          <div className="lg:hidden mb-4">
+            <div className={`rounded-lg shadow-sm border p-4 ${
+              theme === 'dark' 
+                ? 'bg-gray-800 border-gray-700' 
+                : 'bg-white border-gray-200'
+            }`}>
+              <h3 className={`font-semibold mb-3 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
+                Form Sections
+              </h3>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.entries(sectionTitles).map(([id, title]) => (
+                  <button
+                    key={id}
+                    onClick={() => onNavigateToSection(id)}
+                    className={`text-left px-3 py-2 rounded-lg text-xs transition-colors ${
+                      id === sectionId
+                        ? (theme === 'dark' 
+                            ? 'bg-primary-900/20 text-primary-400 border border-primary-800' 
+                            : 'bg-primary-100 text-primary-800 border border-primary-200')
+                        : (theme === 'dark' 
+                            ? 'text-gray-400 hover:bg-gray-700' 
+                            : 'text-gray-600 hover:bg-gray-100')
+                    }`}
+                  >
+                    {title}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`rounded-lg shadow-sm border p-6 ${
+            className={`rounded-lg shadow-sm border p-4 sm:p-6 ${
               theme === 'dark' 
                 ? 'bg-gray-800 border-gray-700' 
                 : 'bg-white border-gray-200'
             }`}
           >
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-4 sm:space-y-0">
               <div>
-                <h2 className={`text-2xl font-bold ${
+                <h2 className={`text-xl sm:text-2xl font-bold ${
                   theme === 'dark' ? 'text-white' : 'text-gray-900'
                 }`}>
                   {sectionTitle}
                 </h2>
-                <div className="flex items-center space-x-4 mt-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mt-2 space-y-2 sm:space-y-0">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     completion === 100 
                       ? (theme === 'dark' ? 'bg-green-900/20 text-green-400' : 'bg-green-100 text-green-800')
@@ -338,14 +372,14 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
               </div>
               <button
                 onClick={onBack}
-                className={`flex items-center space-x-2 transition-colors ${
+                className={`flex items-center space-x-2 transition-colors self-start sm:self-auto ${
                   theme === 'dark' 
                     ? 'text-gray-400 hover:text-gray-200' 
                     : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>Back to Dashboard</span>
+                <span className="text-sm sm:text-base">Back to Dashboard</span>
               </button>
             </div>
 
