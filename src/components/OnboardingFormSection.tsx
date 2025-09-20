@@ -392,25 +392,26 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
             </div>
 
             {/* Action Buttons */}
-            <div className={`flex items-center justify-between mt-8 pt-6 border-t ${
+            <div className={`mt-8 pt-6 border-t ${
               theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
             }`}>
-              <button
-                onClick={onPrevious}
-                className={`flex items-center space-x-2 px-4 py-2 transition-colors ${
-                  theme === 'dark' 
-                    ? 'text-gray-400 hover:text-gray-200' 
-                    : 'text-gray-600 hover:text-gray-800'
-                }`}
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span>Previous</span>
-              </button>
+              {/* Mobile Layout - Stacked buttons */}
+              <div className="flex flex-col space-y-3 sm:hidden">
+                <button
+                  onClick={onPrevious}
+                  className={`flex items-center justify-center space-x-2 px-4 py-2 transition-colors ${
+                    theme === 'dark' 
+                      ? 'text-gray-400 hover:text-gray-200' 
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Previous</span>
+                </button>
 
-              <div className="flex items-center space-x-3">
                 <button
                   onClick={handleSave}
-                  className={`flex items-center space-x-2 font-medium py-2 px-4 rounded-lg transition-colors ${
+                  className={`flex items-center justify-center space-x-2 font-medium py-2 px-4 rounded-lg transition-colors ${
                     theme === 'dark' 
                       ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' 
                       : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
@@ -422,11 +423,48 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
                 
                 <button
                   onClick={onNext}
-                  className="flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                  className="flex items-center justify-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
                 >
                   <span>Next & Save</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
+              </div>
+
+              {/* Desktop Layout - Horizontal buttons */}
+              <div className="hidden sm:flex items-center justify-between">
+                <button
+                  onClick={onPrevious}
+                  className={`flex items-center space-x-2 px-4 py-2 transition-colors ${
+                    theme === 'dark' 
+                      ? 'text-gray-400 hover:text-gray-200' 
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Previous</span>
+                </button>
+
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={handleSave}
+                    className={`flex items-center space-x-2 font-medium py-2 px-4 rounded-lg transition-colors ${
+                      theme === 'dark' 
+                        ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' 
+                        : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                    }`}
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Save Draft</span>
+                  </button>
+                  
+                  <button
+                    onClick={onNext}
+                    className="flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                  >
+                    <span>Next & Save</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </motion.div>
