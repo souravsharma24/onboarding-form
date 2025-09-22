@@ -378,79 +378,8 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
       
       // Save final data locally
       saveOnboardingData(finalData)
-
-      // Bridge API Integration
-      try {
-        // Step 1: Create customer in Bridge (if not already created)
-        let customerId = bridgeCustomerId
-        if (!customerId) {
-          const customer = await createCustomer({
-            email: formData.email,
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            dateOfBirth: formData.dateOfBirth,
-            address: {
-              street: formData.businessStreetAddress,
-              city: formData.businessCity,
-              state: formData.businessState,
-              postalCode: formData.businessPostalCode,
-              country: formData.businessLocatedInUS === 'yes' ? 'US' : formData.businessLocation
-            },
-            businessInfo: {
-              legalName: formData.businessLegalName,
-              dbaName: formData.dbaName,
-              ein: formData.businessEIN,
-              entityType: formData.businessEntityType,
-              industry: formData.businessIndustry,
-              website: formData.businessWebsite,
-              description: formData.businessDescription,
-              address: {
-                street: formData.businessStreetAddress,
-                city: formData.businessCity,
-                state: formData.businessState,
-                postalCode: formData.businessPostalCode
-              }
-            }
-          })
-          customerId = customer.id
-          setBridgeCustomerId(customerId)
-        }
-
-        // Step 2: Submit KYC documents
-        if (customerId && (
-          formData.proofOfOperatingAddressFile ||
-          formData.bankAccountWiringInstructionsFile ||
-          formData.articlesOfIncorporationFile ||
-          formData.signedProofOfOwnershipDocumentFile
-        )) {
-          await submitKYCDocuments(customerId, {
-            proofOfAddress: formData.proofOfOperatingAddressFile,
-            bankAccountWiringInstructions: formData.bankAccountWiringInstructionsFile,
-            articlesOfIncorporation: formData.articlesOfIncorporationFile,
-            proofOfOwnership: formData.signedProofOfOwnershipDocumentFile
-          })
-        }
-
-        // Step 3: Submit compliance information
-        if (customerId) {
-          await submitComplianceInfo(customerId, {
-            businessActivities: formData.businessActivities,
-            expectedMonthlyTransactionAmount: formData.expectedMonthlyTransactionAmount,
-            customerAccountUsage: formData.customerAccountUsage,
-            amlKybProcedures: formData.amlKybProcedures
-          })
-        }
-
-        // Step 4: Complete onboarding
-        if (customerId) {
-          await completeOnboarding(customerId)
-        }
-      } catch (bridgeError) {
-        console.error('Bridge API error:', bridgeError)
-        // Continue with local completion even if Bridge fails
-      }
       
-      // Show success message and complete onboarding
+      // Simulate successful submission
       setSubmitSuccess(true)
       
       // Show success message and complete onboarding
