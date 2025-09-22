@@ -8,7 +8,7 @@ import { useTheme } from '@/contexts/ThemeContext'
 interface Field {
   id: string
   label: string
-  type: 'text' | 'email' | 'url' | 'select' | 'textarea' | 'file'
+  type: 'text' | 'email' | 'url' | 'select' | 'textarea' | 'file' | 'date' | 'checkbox' | 'radio'
   required: boolean
   placeholder?: string
   options?: string[]
@@ -103,7 +103,7 @@ const sectionTitles: Record<string, string> = {
 
 export default function OnboardingFormSection({ sectionId, onBack, onNext, onPrevious, onNavigateToSection }: OnboardingFormSectionProps) {
   const { theme } = useTheme()
-  const [formData, setFormData] = useState<Record<string, string>>({})
+  const [formData, setFormData] = useState<Record<string, string | string[]>>({})
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<string>('')
 
@@ -162,13 +162,19 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
     return () => clearTimeout(timeoutId)
   }, [formData])
 
-  const handleInputChange = (fieldId: string, value: string) => {
+  const handleInputChange = (fieldId: string, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [fieldId]: value }))
   }
 
   const calculateCompletion = () => {
     const requiredFields = fields.filter(f => f.required)
-    const completedFields = requiredFields.filter(f => formData[f.id]?.trim())
+    const completedFields = requiredFields.filter(f => {
+      const value = formData[f.id]
+      if (Array.isArray(value)) {
+        return value.length > 0
+      }
+      return value?.trim()
+    })
     return requiredFields.length === 0 ? 100 : (completedFields.length / requiredFields.length) * 100
   }
 
@@ -517,7 +523,7 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
                       <input
                         type="checkbox"
                         id="acceptStripeTerms"
-                        checked={formData.acceptStripeTerms === 'true' || formData.acceptStripeTerms === true}
+                        checked={formData.acceptStripeTerms === 'true'}
                         onChange={(e) => handleInputChange('acceptStripeTerms', e.target.checked.toString())}
                         className="w-5 h-5 mt-0.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       />
