@@ -44,8 +44,9 @@ export default function OnboardingFormPage() {
 
     const isValidCode = await validateInviteCode(inviteCode)
     if (isValidCode) {
-      // Redirect to full onboarding form
-      window.location.href = '/onboarding'
+      // Form submitted successfully - show success message like the live site
+      console.log('Invite code submitted:', inviteCode)
+      alert('Thank you! Your invite code has been submitted successfully.')
     }
   }
 

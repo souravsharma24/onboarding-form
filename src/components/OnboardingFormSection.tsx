@@ -35,83 +35,59 @@ const sectionFields: Record<string, Field[]> = {
     { id: 'firstName', label: 'First Name', type: 'text', required: true, placeholder: 'Enter your first name' },
     { id: 'lastName', label: 'Last Name', type: 'text', required: true, placeholder: 'Enter your last name' },
     { id: 'email', label: 'Email', type: 'email', required: true, placeholder: 'Enter your email' },
-    { id: 'phone', label: 'Phone Number', type: 'text', required: true, placeholder: '+1 (555) 123-4567' },
-    { id: 'dateOfBirth', label: 'Date of Birth', type: 'text', required: true, placeholder: 'MM/DD/YYYY' },
-    { id: 'ssn', label: 'Social Security Number', type: 'text', required: true, placeholder: 'XXX-XX-XXXX' },
-    { id: 'address', label: 'Residential Address', type: 'textarea', required: true, placeholder: 'Enter your full residential address' },
-    { id: 'city', label: 'City', type: 'text', required: true, placeholder: 'Enter city' },
-    { id: 'state', label: 'State', type: 'select', required: true, options: ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'] },
-    { id: 'zipCode', label: 'ZIP Code', type: 'text', required: true, placeholder: '12345' },
-    { id: 'country', label: 'Country', type: 'select', required: true, options: ['United States', 'Canada', 'United Kingdom', 'Other'] },
   ],
   'business-info': [
-    { id: 'businessName', label: 'Business Legal Name', type: 'text', required: true, placeholder: 'Enter full legal business name' },
-    { id: 'dbaName', label: 'DBA/Trade Name', type: 'text', required: false, placeholder: 'Enter DBA name if different from legal name' },
-    { id: 'businessWebsite', label: 'Business Website', type: 'url', required: true, placeholder: 'https://example.com' },
-    { id: 'businessEIN', label: 'Business EIN/Tax ID', type: 'text', required: true, placeholder: 'XX-XXXXXXX' },
-    { id: 'entityType', label: 'Entity Type', type: 'select', required: true, options: ['LLC', 'Corporation', 'Partnership', 'Sole Proprietorship', 'Trust', 'Non-Profit'] },
-    { id: 'industry', label: 'Industry', type: 'select', required: true, options: ['Finance', 'Energy', 'Technology', 'Healthcare', 'Real Estate', 'Manufacturing', 'Retail', 'Agriculture', 'Other'] },
-    { id: 'businessAddress', label: 'Business Address', type: 'textarea', required: true, placeholder: 'Enter full business address' },
-    { id: 'businessCity', label: 'Business City', type: 'text', required: true, placeholder: 'Enter business city' },
-    { id: 'businessState', label: 'Business State', type: 'select', required: true, options: ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'] },
-    { id: 'businessZipCode', label: 'Business ZIP Code', type: 'text', required: true, placeholder: '12345' },
-    { id: 'businessPhone', label: 'Business Phone', type: 'text', required: true, placeholder: '+1 (555) 123-4567' },
-    { id: 'annualRevenue', label: 'Annual Revenue', type: 'select', required: true, options: ['Under $100K', '$100K - $500K', '$500K - $1M', '$1M - $5M', '$5M - $10M', 'Over $10M'] },
-    { id: 'numberOfEmployees', label: 'Number of Employees', type: 'select', required: true, options: ['1-10', '11-50', '51-200', '201-500', '501-1000', 'Over 1000'] },
+    { id: 'businessLocatedInUS', label: 'Is your business located in the US?', type: 'select', required: true, options: ['Yes', 'No'] },
+    { id: 'businessLocation', label: 'Where is your business located?', type: 'text', required: true, placeholder: 'Enter business location' },
+    { id: 'businessLegalName', label: 'Business legal name', type: 'text', required: true, placeholder: 'Enter business legal name' },
+    { id: 'dbaName', label: 'DBA name / trade name (optional)', type: 'text', required: false, placeholder: 'Enter DBA name if applicable' },
+    { id: 'businessWebsite', label: 'Business Website', type: 'url', required: true, placeholder: 'https://www.yourbusiness.com' },
+    { id: 'businessEIN', label: 'Business EIN', type: 'text', required: true, placeholder: 'XX-XXXXXXX' },
+    { id: 'businessEntityType', label: 'Business Entity Type', type: 'select', required: true, options: ['Corporation', 'LLC', 'Partnership', 'Sole Proprietorship', 'Non-Profit'] },
+    { id: 'businessIndustry', label: 'Business Industry', type: 'select', required: true, options: ['Technology', 'Finance', 'Healthcare', 'Energy', 'Manufacturing', 'Retail', 'Other'] },
+    { id: 'businessDescription', label: 'Business Description', type: 'textarea', required: true, placeholder: 'Describe your business activities' },
+    { id: 'businessStreetAddress', label: 'Street address', type: 'text', required: true, placeholder: 'Enter street address' },
+    { id: 'businessCity', label: 'City', type: 'text', required: true, placeholder: 'Enter city' },
+    { id: 'businessState', label: 'State/Region', type: 'text', required: true, placeholder: 'Enter state/region' },
+    { id: 'businessPostalCode', label: 'Postal code', type: 'text', required: true, placeholder: 'Enter postal code' },
   ],
   'ownership': [
     { id: 'owner1Name', label: 'Beneficial Owner 1 Full Name', type: 'text', required: true, placeholder: 'Full Name' },
     { id: 'owner1Percentage', label: 'Beneficial Owner 1 Ownership Percentage', type: 'text', required: true, placeholder: 'e.g., 50.00' },
-    { id: 'owner1Title', label: 'Beneficial Owner 1 Title/Position', type: 'text', required: true, placeholder: 'e.g., CEO, President, Managing Member' },
-    { id: 'owner1Address', label: 'Beneficial Owner 1 Address', type: 'textarea', required: true, placeholder: 'Enter full address' },
-    { id: 'owner1SSN', label: 'Beneficial Owner 1 SSN', type: 'text', required: true, placeholder: 'XXX-XX-XXXX' },
-    { id: 'owner1DOB', label: 'Beneficial Owner 1 Date of Birth', type: 'text', required: true, placeholder: 'MM/DD/YYYY' },
+    { id: 'owner1Email', label: 'Beneficial Owner 1 Email', type: 'email', required: true, placeholder: 'Enter email address' },
     { id: 'owner2Name', label: 'Beneficial Owner 2 Full Name', type: 'text', required: false, placeholder: 'Full Name (if applicable)' },
     { id: 'owner2Percentage', label: 'Beneficial Owner 2 Ownership Percentage', type: 'text', required: false, placeholder: 'e.g., 25.00' },
-    { id: 'owner2Title', label: 'Beneficial Owner 2 Title/Position', type: 'text', required: false, placeholder: 'e.g., CFO, Vice President' },
-    { id: 'controlPersonName', label: 'Control Person Full Name', type: 'text', required: true, placeholder: 'Full Name' },
+    { id: 'owner2Email', label: 'Beneficial Owner 2 Email', type: 'email', required: false, placeholder: 'Enter email address' },
+    { id: 'controlPersonFirstName', label: 'Control Person First Name', type: 'text', required: true, placeholder: 'First Name' },
+    { id: 'controlPersonLastName', label: 'Control Person Last Name', type: 'text', required: true, placeholder: 'Last Name' },
     { id: 'controlPersonEmail', label: 'Control Person Email', type: 'email', required: true, placeholder: 'Email' },
-    { id: 'controlPersonPhone', label: 'Control Person Phone', type: 'text', required: true, placeholder: '+1 (555) 123-4567' },
-    { id: 'controlPersonTitle', label: 'Control Person Title', type: 'text', required: true, placeholder: 'e.g., Operations Manager, Controller' },
+    { id: 'controlPersonJobTitle', label: 'Control Person Job Title', type: 'text', required: true, placeholder: 'e.g., Operations Manager, Controller' },
+    { id: 'controlPersonDateStarted', label: 'Control Person Date Started', type: 'date', required: true, placeholder: '' },
+    { id: 'authorizedSignerFirstName', label: 'Authorized Signer First Name', type: 'text', required: true, placeholder: 'First Name' },
+    { id: 'authorizedSignerLastName', label: 'Authorized Signer Last Name', type: 'text', required: true, placeholder: 'Last Name' },
+    { id: 'authorizedSignerEmail', label: 'Authorized Signer Email', type: 'email', required: true, placeholder: 'Email' },
+    { id: 'authorizedSignerJobTitle', label: 'Authorized Signer Job Title', type: 'text', required: true, placeholder: 'e.g., Operations Manager, Controller' },
+    { id: 'authorizedSignerDateStarted', label: 'Authorized Signer Date Started', type: 'date', required: true, placeholder: '' },
   ],
   'docs': [
-    { id: 'operatingAddressFile', label: 'Proof of Operating Address File', type: 'file', required: true, help: 'Upload a recent document clearly showing business name and address' },
-    { id: 'articlesFile', label: 'Articles of Incorporation/Organization File', type: 'file', required: true, help: 'Upload Articles of Incorporation, Articles of Organization, or similar formation document' },
-    { id: 'bylawsFile', label: 'Bylaws/Operating Agreement File', type: 'file', required: true, help: 'Upload company bylaws, operating agreement, or partnership agreement' },
-    { id: 'bankStatementFile', label: 'Business Bank Statement', type: 'file', required: true, help: 'Upload most recent business bank statement (last 3 months)' },
-    { id: 'taxReturnFile', label: 'Business Tax Return', type: 'file', required: true, help: 'Upload most recent business tax return (Form 1120, 1065, or Schedule C)' },
-    { id: 'businessLicenseFile', label: 'Business License/Permits', type: 'file', required: false, help: 'Upload business license or relevant permits (if applicable)' },
-    { id: 'insuranceFile', label: 'Business Insurance Certificate', type: 'file', required: false, help: 'Upload business insurance certificate (if applicable)' },
+    { id: 'proofOfOperatingAddressFile', label: 'Proof of Operating Address File', type: 'file', required: true, help: 'Upload a recent document clearly showing business name and address' },
+    { id: 'bankAccountWiringInstructionsFile', label: 'Bank Account Wiring Instructions', type: 'file', required: true, help: 'Upload bank account wiring instructions document' },
+    { id: 'articlesOfIncorporationFile', label: 'Articles of Incorporation File', type: 'file', required: true, help: 'Upload Articles of Incorporation, Articles of Organization, or similar formation document' },
+    { id: 'signedProofOfOwnershipDocumentFile', label: 'Signed Proof of Ownership Document', type: 'file', required: true, help: 'Upload signed document proving ownership structure' },
   ],
   'funds': [
-    { id: 'primarySource', label: 'Primary Source of Funds', type: 'select', required: true, options: ['Business Revenue', 'Outside Investment', 'Loans', 'Personal Savings', 'Inheritance', 'Sale of Assets', 'Other'] },
-    { id: 'sourceDescription', label: 'Source of Funds Description', type: 'textarea', required: true, placeholder: 'Please provide detailed description of your primary source of funds' },
-    { id: 'expectedMonthlyVolume', label: 'Expected Monthly Trading Volume', type: 'select', required: true, options: ['Under $10K', '$10K - $50K', '$50K - $100K', '$100K - $500K', '$500K - $1M', 'Over $1M'] },
-    { id: 'expectedAnnualVolume', label: 'Expected Annual Trading Volume', type: 'select', required: true, options: ['Under $100K', '$100K - $500K', '$500K - $1M', '$1M - $5M', '$5M - $10M', 'Over $10M'] },
-    { id: 'fundingPurpose', label: 'Primary Purpose of Trading Account', type: 'select', required: true, options: ['Hedging', 'Speculation', 'Investment', 'Arbitrage', 'Market Making', 'Other'] },
-    { id: 'previousTradingExperience', label: 'Previous Trading Experience', type: 'select', required: true, options: ['None', 'Less than 1 year', '1-3 years', '3-5 years', '5-10 years', 'Over 10 years'] },
-    { id: 'riskTolerance', label: 'Risk Tolerance', type: 'select', required: true, options: ['Conservative', 'Moderate', 'Aggressive', 'Very Aggressive'] },
+    { id: 'primarySourceOfFund', label: 'Primary Source of Fund', type: 'select', required: true, options: ['Business Revenue', 'Outside Investment', 'Loans', 'Personal Savings', 'Inheritance', 'Sale of Assets', 'Other'] },
+    { id: 'sourceOfFundDescription', label: 'Source of Fund Description', type: 'textarea', required: true, placeholder: 'Please provide detailed description of your primary source of funds' },
+    { id: 'estimatedAnnualRevenue', label: 'Estimated Annual Revenue', type: 'text', required: true, placeholder: 'e.g., $100,000 - $500,000' },
   ],
   'compliance': [
-    { id: 'customerAccount', label: 'Will this account be used on behalf of customers?', type: 'select', required: true, options: ['Yes', 'No'] },
-    { id: 'amlProcedures', label: 'If yes, describe AML/KYB procedures', type: 'textarea', required: true, placeholder: 'Type N/A if not applicable' },
-    { id: 'sanctionsCheck', label: 'Are you or any beneficial owners on any sanctions lists?', type: 'select', required: true, options: ['Yes', 'No'] },
-    { id: 'pepStatus', label: 'Are you or any beneficial owners a Politically Exposed Person (PEP)?', type: 'select', required: true, options: ['Yes', 'No'] },
-    { id: 'pepDetails', label: 'If yes, provide PEP details', type: 'textarea', required: false, placeholder: 'Provide details about PEP status' },
-    { id: 'regulatoryViolations', label: 'Have you or the business had any regulatory violations?', type: 'select', required: true, options: ['Yes', 'No'] },
-    { id: 'violationDetails', label: 'If yes, provide violation details', type: 'textarea', required: false, placeholder: 'Provide details about regulatory violations' },
-    { id: 'criminalHistory', label: 'Do you or any beneficial owners have criminal history?', type: 'select', required: true, options: ['Yes', 'No'] },
-    { id: 'criminalDetails', label: 'If yes, provide criminal history details', type: 'textarea', required: false, placeholder: 'Provide details about criminal history' },
-    { id: 'bankruptcyHistory', label: 'Have you or the business filed for bankruptcy?', type: 'select', required: true, options: ['Yes', 'No'] },
-    { id: 'bankruptcyDetails', label: 'If yes, provide bankruptcy details', type: 'textarea', required: false, placeholder: 'Provide details about bankruptcy filings' },
+    { id: 'businessActivities', label: 'Please select all activities that apply to your business', type: 'checkbox', required: true, options: ['Money Services (i.e., check cashing, gift cards, ATMs, remittances)', 'Lending/Banking', 'Operate Foreign Exchange/Virtual Currencies Brokerage/OTC', 'Hold Client Funds (i.e., escrow)', 'Investment Services', 'Safe Deposit Box Rentals', 'Marijuana or Related Services', 'Third-Party Payment Processing', 'Adult Entertainment', 'Weapons, Firearms, and Explosives', 'Gambling', 'None of the above'] },
+    { id: 'expectedMonthlyTransactionAmount', label: 'Enter your expected monthly transaction amount in USD', type: 'text', required: true, placeholder: 'e.g., $10,000 - $50,000' },
+    { id: 'customerAccountUsage', label: 'Will this account be used to invest, transfer, or trade funds on behalf of customers or 3rd parties?', type: 'radio', required: true, options: ['Yes', 'No'] },
+    { id: 'amlKybProcedures', label: 'If transacting on behalf of customers, please explain if your company has any AML/KYB procedures in place (Type N/A if this doesn\'t apply to you)', type: 'textarea', required: true, placeholder: 'Describe your AML/KYB procedures or type N/A if not applicable' },
   ],
   'terms': [
-    { id: 'acceptTerms', label: 'Accept the Terms of Service (Innovo Markets)', type: 'select', required: true, options: ['No', 'Yes'] },
-    { id: 'acceptPrivacyPolicy', label: 'Accept the Privacy Policy', type: 'select', required: true, options: ['No', 'Yes'] },
-    { id: 'acceptRiskDisclosure', label: 'Accept the Risk Disclosure Statement', type: 'select', required: true, options: ['No', 'Yes'] },
-    { id: 'acceptDataProcessing', label: 'Accept Data Processing Agreement', type: 'select', required: true, options: ['No', 'Yes'] },
-    { id: 'marketingConsent', label: 'Marketing Communications Consent', type: 'select', required: true, options: ['Yes', 'No'], help: 'Do you consent to receive marketing communications from Innovo Markets?' },
-    { id: 'electronicDelivery', label: 'Electronic Delivery Consent', type: 'select', required: true, options: ['Yes', 'No'], help: 'Do you consent to receive account statements and other documents electronically?' },
+    { id: 'acceptStripeTerms', label: 'Accept the Terms of Service of our payment provider, Stripe (Bridge)', type: 'checkbox', required: true },
   ],
 }
 
@@ -122,7 +98,7 @@ const sectionTitles: Record<string, string> = {
   'docs': 'Business Documentation',
   'funds': 'Source of Funds',
   'compliance': 'Compliance and Business Activity',
-  'terms': 'Terms and Conditions',
+  'terms': 'Network Access Requirement',
 }
 
 export default function OnboardingFormSection({ sectionId, onBack, onNext, onPrevious, onNavigateToSection }: OnboardingFormSectionProps) {
@@ -145,6 +121,15 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
         setLastSaved(parsed.lastSaved || '')
       } catch (error) {
         console.error('Error loading saved data:', error)
+      }
+    } else {
+      // Set default values for certain fields
+      const defaultValues: Record<string, string> = {}
+      if (sectionId === 'compliance') {
+        defaultValues.customerAccountUsage = 'no'
+      }
+      if (Object.keys(defaultValues).length > 0) {
+        setFormData(defaultValues)
       }
     }
   }, [sectionId])
@@ -213,6 +198,49 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
               <option key={option} value={option}>{option}</option>
             ))}
           </select>
+        )
+
+      case 'radio':
+        return (
+          <div className="flex space-x-6">
+            {field.options?.map(option => (
+              <label key={option} className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name={field.id}
+                  value={option.toLowerCase()}
+                  checked={value === option.toLowerCase()}
+                  onChange={(e) => handleInputChange(field.id, e.target.value)}
+                  className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700 dark:text-gray-300">{option}</span>
+              </label>
+            ))}
+          </div>
+        )
+
+      case 'checkbox':
+        return (
+          <div className="space-y-2">
+            {field.options?.map(option => (
+              <label key={option} className="flex items-start space-x-3 cursor-pointer py-1">
+                <input
+                  type="checkbox"
+                  checked={Array.isArray(value) ? value.includes(option) : false}
+                  onChange={(e) => {
+                    const currentValues = Array.isArray(value) ? value : []
+                    if (e.target.checked) {
+                      handleInputChange(field.id, [...currentValues, option])
+                    } else {
+                      handleInputChange(field.id, currentValues.filter(v => v !== option))
+                    }
+                  }}
+                  className="w-4 h-4 mt-0.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{option}</span>
+              </label>
+            ))}
+          </div>
         )
 
       case 'textarea':
@@ -399,30 +427,145 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
 
             {/* Form Fields */}
             <div className="space-y-6">
-              {fields.map((field, index) => (
+              {sectionId === 'terms' ? (
                 <motion.div
-                  key={field.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="space-y-2"
+                  className="space-y-6"
                 >
-                  <label className={`block text-sm font-medium ${
-                    theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                  }`}>
-                    {field.label}
-                    {field.required && <span className="text-red-500 ml-1">*</span>}
-                  </label>
-                  {renderField(field)}
-                  {field.help && (
-                    <p className={`text-sm ${
-                      theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                  {/* Network Access Information */}
+                  <div>
+                    <p className={`text-sm mb-4 ${
+                      theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
                     }`}>
-                      {field.help}
+                      To ensure proper functionality of the Innovo platform, please ensure that your organization's network/firewall settings allow access to the following URLs:
                     </p>
-                  )}
+                    
+                    <div className="space-y-3 mb-4">
+                      <div className="flex items-start space-x-3">
+                        <span className="text-blue-600 font-medium min-w-0 flex-shrink-0">•</span>
+                        <div>
+                          <span className={`font-medium ${
+                            theme === 'dark' ? 'text-gray-300' : 'text-gray-900'
+                          }`}>Innovo App:</span>
+                          <a 
+                            href="https://app.innovomarkets.com/" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline ml-2"
+                          >
+                            https://app.innovomarkets.com/
+                          </a>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start space-x-3">
+                        <span className="text-blue-600 font-medium min-w-0 flex-shrink-0">•</span>
+                        <div>
+                          <span className={`font-medium ${
+                            theme === 'dark' ? 'text-gray-300' : 'text-gray-900'
+                          }`}>MetaMask Wallet:</span>
+                          <a 
+                            href="https://metamask.io/" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline ml-2"
+                          >
+                            https://metamask.io/
+                          </a>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start space-x-3">
+                        <span className="text-blue-600 font-medium min-w-0 flex-shrink-0">•</span>
+                        <div>
+                          <span className={`font-medium ${
+                            theme === 'dark' ? 'text-gray-300' : 'text-gray-900'
+                          }`}>Innovo Blockchain RPC Endpoint:</span>
+                          <a 
+                            href="https://subnets.avax.network/innovo/mainnet/rpc" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline ml-2"
+                          >
+                            https://subnets.avax.network/innovo/mainnet/rpc
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <p className={`text-sm mb-4 ${
+                      theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                    }`}>
+                      If your IT or network security team requires additional information, the <strong>Chain ID</strong> used by our platform is <code className="font-mono font-semibold">10036</code>.
+                    </p>
+                    
+                    <div className={`bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 ${
+                      theme === 'dark' ? 'bg-blue-900/20 border-blue-800' : ''
+                    }`}>
+                      <p className={`text-blue-800 font-medium ${
+                        theme === 'dark' ? 'text-blue-300' : 'text-blue-800'
+                      }`}>
+                        📩 Please coordinate with your IT team to whitelist these URLs, if necessary, before proceeding.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Stripe Terms Checkbox */}
+                  <div className="border-t pt-6">
+                    <div className="flex items-start space-x-3">
+                      <input
+                        type="checkbox"
+                        id="acceptStripeTerms"
+                        checked={formData.acceptStripeTerms === 'true' || formData.acceptStripeTerms === true}
+                        onChange={(e) => handleInputChange('acceptStripeTerms', e.target.checked.toString())}
+                        className="w-5 h-5 mt-0.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <label htmlFor="acceptStripeTerms" className={`text-sm leading-relaxed ${
+                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                      }`}>
+                        Accept the <a href="#" className="text-blue-600 hover:text-blue-800 underline">Terms of Service</a> of our payment provider, Stripe (Bridge). *
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* KYB Disclaimer */}
+                  <div className={`bg-gray-50 border border-gray-200 rounded-lg p-4 ${
+                    theme === 'dark' ? 'bg-gray-800 border-gray-700' : ''
+                  }`}>
+                    <p className={`text-sm italic ${
+                      theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
+                    }`}>
+                      <strong>Innovo Markets is acting solely as a facilitator in the Know your Business (KYB) process and does not verify, validate, or certify the accuracy of the information provided on this form by the customer.</strong>
+                    </p>
+                  </div>
                 </motion.div>
-              ))}
+              ) : (
+                fields.map((field, index) => (
+                  <motion.div
+                    key={field.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="space-y-2"
+                  >
+                    <label className={`block text-sm font-medium ${
+                      theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                    }`}>
+                      {field.label}
+                      {field.required && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                    {renderField(field)}
+                    {field.help && (
+                      <p className={`text-sm ${
+                        theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
+                        {field.help}
+                      </p>
+                    )}
+                  </motion.div>
+                ))
+              )}
             </div>
 
             {/* Action Buttons */}

@@ -10,6 +10,9 @@ import {
   Building, 
   CreditCard, 
   FileText,
+  DollarSign,
+  Shield,
+  Globe,
   Mail,
   Phone,
   MapPin,
@@ -32,15 +35,64 @@ interface FormData {
   address: string
   
   // Business Information
-  businessType: string
-  annualRevenue: string
-  taxId: string
-  website: string
+  businessLocatedInUS: string
+  businessLocation: string
+  businessLegalName: string
+  dbaName: string
+  businessWebsite: string
+  businessEIN: string
+  businessEntityType: string
+  businessIndustry: string
+  businessDescription: string
+  
+  // Business Operating Address
+  businessStreetAddress: string
+  businessCity: string
+  businessState: string
+  businessPostalCode: string
+  
+  // Ownership and Management
+  owner1Name: string
+  owner1Percentage: string
+  owner1Email: string
+  owner2Name: string
+  owner2Percentage: string
+  owner2Email: string
+  controlPersonFirstName: string
+  controlPersonLastName: string
+  controlPersonEmail: string
+  controlPersonJobTitle: string
+  controlPersonDateStarted: string
+  authorizedSignerFirstName: string
+  authorizedSignerLastName: string
+  authorizedSignerEmail: string
+  authorizedSignerJobTitle: string
+  authorizedSignerDateStarted: string
+  
+  // Business Documentation
+  proofOfOperatingAddressFile: File | null
+  bankAccountWiringInstructionsFile: File | null
+  articlesOfIncorporationFile: File | null
+  signedProofOfOwnershipDocumentFile: File | null
+  
+  // Source of Fund
+  primarySourceOfFund: string
+  sourceOfFundDescription: string
+  estimatedAnnualRevenue: string
+  
+  // Compliance and Business Activity
+  businessActivities: string[]
+  expectedMonthlyTransactionAmount: string
+  customerAccountUsage: string
+  amlKybProcedures: string
   
   // Additional Information
   referralSource: string
   interests: string[]
   additionalNotes: string
+  
+  // Network Access Requirement
+  acceptStripeTerms: boolean
 }
 
 const steps = [
@@ -48,7 +100,7 @@ const steps = [
     id: 1,
     title: 'Personal Information',
     icon: User,
-    fields: ['firstName', 'lastName', 'email', 'phone', 'dateOfBirth']
+    fields: ['firstName', 'lastName', 'email']
   },
   {
     id: 2,
@@ -60,13 +112,43 @@ const steps = [
     id: 3,
     title: 'Business Information',
     icon: CreditCard,
-    fields: ['businessType', 'annualRevenue', 'taxId', 'website']
+    fields: ['businessLocatedInUS', 'businessLocation', 'businessLegalName', 'dbaName', 'businessWebsite', 'businessEIN', 'businessEntityType', 'businessIndustry', 'businessDescription', 'businessStreetAddress', 'businessCity', 'businessState', 'businessPostalCode']
   },
   {
     id: 4,
+    title: 'Ownership and Management',
+    icon: User,
+    fields: ['owner1Name', 'owner1Percentage', 'owner1Email', 'owner2Name', 'owner2Percentage', 'owner2Email', 'controlPersonFirstName', 'controlPersonLastName', 'controlPersonEmail', 'controlPersonJobTitle', 'controlPersonDateStarted', 'authorizedSignerFirstName', 'authorizedSignerLastName', 'authorizedSignerEmail', 'authorizedSignerJobTitle', 'authorizedSignerDateStarted']
+  },
+  {
+    id: 5,
+    title: 'Business Documentation',
+    icon: FileText,
+    fields: ['proofOfOperatingAddressFile', 'bankAccountWiringInstructionsFile', 'articlesOfIncorporationFile', 'signedProofOfOwnershipDocumentFile']
+  },
+  {
+    id: 6,
+    title: 'Source of Fund',
+    icon: DollarSign,
+    fields: ['primarySourceOfFund', 'sourceOfFundDescription', 'estimatedAnnualRevenue']
+  },
+  {
+    id: 7,
+    title: 'Compliance and Business Activity',
+    icon: Shield,
+    fields: ['businessActivities', 'expectedMonthlyTransactionAmount', 'customerAccountUsage', 'amlKybProcedures']
+  },
+  {
+    id: 8,
     title: 'Additional Information',
     icon: FileText,
     fields: ['referralSource', 'interests', 'additionalNotes']
+  },
+  {
+    id: 9,
+    title: 'Network Access Requirement',
+    icon: Globe,
+    fields: ['acceptStripeTerms']
   }
 ]
 
@@ -83,19 +165,63 @@ export default function OnboardingForm() {
     industry: '',
     companySize: '',
     address: '',
-    businessType: '',
-    annualRevenue: '',
-    taxId: '',
-    website: '',
+    businessLocatedInUS: '',
+    businessLocation: '',
+    businessLegalName: '',
+    dbaName: '',
+    businessWebsite: '',
+    businessEIN: '',
+    businessEntityType: '',
+    businessIndustry: '',
+    businessDescription: '',
+    businessStreetAddress: '',
+    businessCity: '',
+    businessState: '',
+    businessPostalCode: '',
+    owner1Name: '',
+    owner1Percentage: '',
+    owner1Email: '',
+    owner2Name: '',
+    owner2Percentage: '',
+    owner2Email: '',
+    controlPersonFirstName: '',
+    controlPersonLastName: '',
+    controlPersonEmail: '',
+    controlPersonJobTitle: '',
+    controlPersonDateStarted: '',
+    authorizedSignerFirstName: '',
+    authorizedSignerLastName: '',
+    authorizedSignerEmail: '',
+    authorizedSignerJobTitle: '',
+    authorizedSignerDateStarted: '',
+    proofOfOperatingAddressFile: null,
+    bankAccountWiringInstructionsFile: null,
+    articlesOfIncorporationFile: null,
+    signedProofOfOwnershipDocumentFile: null,
+    primarySourceOfFund: '',
+    sourceOfFundDescription: '',
+    estimatedAnnualRevenue: '',
+    businessActivities: [],
+    expectedMonthlyTransactionAmount: '',
+    customerAccountUsage: 'no',
+    amlKybProcedures: '',
     referralSource: '',
     interests: [],
-    additionalNotes: ''
+    additionalNotes: '',
+    acceptStripeTerms: false
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const handleInputChange = (field: keyof FormData, value: string | string[]) => {
+  const handleInputChange = (field: keyof FormData, value: string | string[] | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }))
+    }
+  }
+
+  const handleFileChange = (field: keyof FormData, file: File | null) => {
+    setFormData(prev => ({ ...prev, [field]: file }))
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }))
     }
@@ -203,43 +329,6 @@ export default function OnboardingForm() {
                 />
               </div>
               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number *
-              </label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                    errors.phone ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Enter your phone number"
-                />
-              </div>
-              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date of Birth *
-              </label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="date"
-                  value={formData.dateOfBirth}
-                  onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-                  className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                    errors.dateOfBirth ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-              </div>
-              {errors.dateOfBirth && <p className="text-red-500 text-sm mt-1">{errors.dateOfBirth}</p>}
             </div>
           </div>
         )
@@ -349,80 +438,763 @@ export default function OnboardingForm() {
       case 3:
         return (
           <div className="space-y-6">
+            {/* Business Location */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Business Type *
+                Is your business located in the US? *
               </label>
               <select
-                value={formData.businessType}
-                onChange={(e) => handleInputChange('businessType', e.target.value)}
+                value={formData.businessLocatedInUS}
+                onChange={(e) => handleInputChange('businessLocatedInUS', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                  errors.businessType ? 'border-red-500' : 'border-gray-300'
+                  errors.businessLocatedInUS ? 'border-red-500' : 'border-gray-300'
                 }`}
               >
-                <option value="">Select business type</option>
+                <option value="">Please Select</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+              {errors.businessLocatedInUS && <p className="text-red-500 text-sm mt-1">{errors.businessLocatedInUS}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Where is your business located? *
+              </label>
+              <input
+                type="text"
+                value={formData.businessLocation}
+                onChange={(e) => handleInputChange('businessLocation', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.businessLocation ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Enter business location"
+              />
+              {errors.businessLocation && <p className="text-red-500 text-sm mt-1">{errors.businessLocation}</p>}
+            </div>
+
+            {/* Business Details */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Business legal name *
+              </label>
+              <input
+                type="text"
+                value={formData.businessLegalName}
+                onChange={(e) => handleInputChange('businessLegalName', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.businessLegalName ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Enter business legal name"
+              />
+              {errors.businessLegalName && <p className="text-red-500 text-sm mt-1">{errors.businessLegalName}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                DBA name / trade name (optional)
+              </label>
+              <input
+                type="text"
+                value={formData.dbaName}
+                onChange={(e) => handleInputChange('dbaName', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                placeholder="Enter DBA name if applicable"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Business Website *
+              </label>
+              <input
+                type="url"
+                value={formData.businessWebsite}
+                onChange={(e) => handleInputChange('businessWebsite', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.businessWebsite ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="https://www.yourbusiness.com"
+              />
+              {errors.businessWebsite && <p className="text-red-500 text-sm mt-1">{errors.businessWebsite}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Business EIN *
+              </label>
+              <input
+                type="text"
+                value={formData.businessEIN}
+                onChange={(e) => handleInputChange('businessEIN', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.businessEIN ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="XX-XXXXXXX"
+              />
+              {errors.businessEIN && <p className="text-red-500 text-sm mt-1">{errors.businessEIN}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Business Entity Type *
+              </label>
+              <select
+                value={formData.businessEntityType}
+                onChange={(e) => handleInputChange('businessEntityType', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.businessEntityType ? 'border-red-500' : 'border-gray-300'
+                }`}
+              >
+                <option value="">Please Select</option>
                 <option value="corporation">Corporation</option>
                 <option value="llc">LLC</option>
                 <option value="partnership">Partnership</option>
                 <option value="sole-proprietorship">Sole Proprietorship</option>
                 <option value="non-profit">Non-Profit</option>
               </select>
-              {errors.businessType && <p className="text-red-500 text-sm mt-1">{errors.businessType}</p>}
+              {errors.businessEntityType && <p className="text-red-500 text-sm mt-1">{errors.businessEntityType}</p>}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Annual Revenue *
+                Business Industry *
               </label>
               <select
-                value={formData.annualRevenue}
-                onChange={(e) => handleInputChange('annualRevenue', e.target.value)}
+                value={formData.businessIndustry}
+                onChange={(e) => handleInputChange('businessIndustry', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                  errors.annualRevenue ? 'border-red-500' : 'border-gray-300'
+                  errors.businessIndustry ? 'border-red-500' : 'border-gray-300'
                 }`}
               >
-                <option value="">Select annual revenue</option>
-                <option value="0-100k">$0 - $100,000</option>
-                <option value="100k-500k">$100,000 - $500,000</option>
-                <option value="500k-1m">$500,000 - $1,000,000</option>
-                <option value="1m-5m">$1,000,000 - $5,000,000</option>
-                <option value="5m+">$5,000,000+</option>
+                <option value="">Please Select</option>
+                <option value="technology">Technology</option>
+                <option value="finance">Finance</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="energy">Energy</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="retail">Retail</option>
+                <option value="other">Other</option>
               </select>
-              {errors.annualRevenue && <p className="text-red-500 text-sm mt-1">{errors.annualRevenue}</p>}
+              {errors.businessIndustry && <p className="text-red-500 text-sm mt-1">{errors.businessIndustry}</p>}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tax ID / EIN *
+                Business Description *
               </label>
-              <input
-                type="text"
-                value={formData.taxId}
-                onChange={(e) => handleInputChange('taxId', e.target.value)}
+              <textarea
+                value={formData.businessDescription}
+                onChange={(e) => handleInputChange('businessDescription', e.target.value)}
+                rows={4}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                  errors.taxId ? 'border-red-500' : 'border-gray-300'
+                  errors.businessDescription ? 'border-red-500' : 'border-gray-300'
                 }`}
-                placeholder="Enter your Tax ID or EIN"
+                placeholder="Describe your business activities"
               />
-              {errors.taxId && <p className="text-red-500 text-sm mt-1">{errors.taxId}</p>}
+              {errors.businessDescription && <p className="text-red-500 text-sm mt-1">{errors.businessDescription}</p>}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Company Website
-              </label>
-              <input
-                type="url"
-                value={formData.website}
-                onChange={(e) => handleInputChange('website', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                placeholder="https://www.yourcompany.com"
-              />
+            {/* Business Operating Address */}
+            <div className="border-t pt-6">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Business Operating Address</h4>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Street address *
+                </label>
+                <input
+                  type="text"
+                  value={formData.businessStreetAddress}
+                  onChange={(e) => handleInputChange('businessStreetAddress', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                    errors.businessStreetAddress ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter street address"
+                />
+                {errors.businessStreetAddress && <p className="text-red-500 text-sm mt-1">{errors.businessStreetAddress}</p>}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    City *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.businessCity}
+                    onChange={(e) => handleInputChange('businessCity', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                      errors.businessCity ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter city"
+                  />
+                  {errors.businessCity && <p className="text-red-500 text-sm mt-1">{errors.businessCity}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    State/Region *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.businessState}
+                    onChange={(e) => handleInputChange('businessState', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                      errors.businessState ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter state/region"
+                  />
+                  {errors.businessState && <p className="text-red-500 text-sm mt-1">{errors.businessState}</p>}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Postal code *
+                </label>
+                <input
+                  type="text"
+                  value={formData.businessPostalCode}
+                  onChange={(e) => handleInputChange('businessPostalCode', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                    errors.businessPostalCode ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter postal code"
+                />
+                {errors.businessPostalCode && <p className="text-red-500 text-sm mt-1">{errors.businessPostalCode}</p>}
+              </div>
             </div>
           </div>
         )
 
       case 4:
+        return (
+          <div className="space-y-6">
+            {/* Beneficial Owner 1 */}
+            <div className="border-b pb-6">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Beneficial Owner 1</h4>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Beneficial Owner 1 Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.owner1Name}
+                    onChange={(e) => handleInputChange('owner1Name', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                      errors.owner1Name ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Full Name"
+                  />
+                  {errors.owner1Name && <p className="text-red-500 text-sm mt-1">{errors.owner1Name}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Beneficial Owner 1 Ownership Percentage *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.owner1Percentage}
+                    onChange={(e) => handleInputChange('owner1Percentage', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                      errors.owner1Percentage ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="e.g., 50.00"
+                  />
+                  {errors.owner1Percentage && <p className="text-red-500 text-sm mt-1">{errors.owner1Percentage}</p>}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Beneficial Owner 1 Email *
+                </label>
+                <input
+                  type="email"
+                  value={formData.owner1Email}
+                  onChange={(e) => handleInputChange('owner1Email', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                    errors.owner1Email ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter email address"
+                />
+                {errors.owner1Email && <p className="text-red-500 text-sm mt-1">{errors.owner1Email}</p>}
+              </div>
+            </div>
+
+            {/* Beneficial Owner 2 */}
+            <div className="border-b pb-6">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Beneficial Owner 2 (Optional)</h4>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Beneficial Owner 2 Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.owner2Name}
+                    onChange={(e) => handleInputChange('owner2Name', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="Full Name (if applicable)"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Beneficial Owner 2 Ownership Percentage
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.owner2Percentage}
+                    onChange={(e) => handleInputChange('owner2Percentage', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="e.g., 25.00"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Beneficial Owner 2 Email
+                </label>
+                <input
+                  type="email"
+                  value={formData.owner2Email}
+                  onChange={(e) => handleInputChange('owner2Email', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="Enter email address"
+                />
+              </div>
+            </div>
+
+            {/* Control Person */}
+            <div className="border-b pb-6">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Control Person</h4>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Control Person First Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.controlPersonFirstName}
+                    onChange={(e) => handleInputChange('controlPersonFirstName', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                      errors.controlPersonFirstName ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="First Name"
+                  />
+                  {errors.controlPersonFirstName && <p className="text-red-500 text-sm mt-1">{errors.controlPersonFirstName}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Control Person Last Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.controlPersonLastName}
+                    onChange={(e) => handleInputChange('controlPersonLastName', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                      errors.controlPersonLastName ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Last Name"
+                  />
+                  {errors.controlPersonLastName && <p className="text-red-500 text-sm mt-1">{errors.controlPersonLastName}</p>}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Control Person Email *
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.controlPersonEmail}
+                    onChange={(e) => handleInputChange('controlPersonEmail', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                      errors.controlPersonEmail ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Email"
+                  />
+                  {errors.controlPersonEmail && <p className="text-red-500 text-sm mt-1">{errors.controlPersonEmail}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Control Person Job Title *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.controlPersonJobTitle}
+                    onChange={(e) => handleInputChange('controlPersonJobTitle', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                      errors.controlPersonJobTitle ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="e.g., Operations Manager, Controller"
+                  />
+                  {errors.controlPersonJobTitle && <p className="text-red-500 text-sm mt-1">{errors.controlPersonJobTitle}</p>}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Control Person Date Started *
+                </label>
+                <input
+                  type="date"
+                  value={formData.controlPersonDateStarted}
+                  onChange={(e) => handleInputChange('controlPersonDateStarted', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                    errors.controlPersonDateStarted ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.controlPersonDateStarted && <p className="text-red-500 text-sm mt-1">{errors.controlPersonDateStarted}</p>}
+              </div>
+            </div>
+
+            {/* Authorized Signer */}
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900 mb-4">Authorized Signer</h4>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Authorized Signer First Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.authorizedSignerFirstName}
+                    onChange={(e) => handleInputChange('authorizedSignerFirstName', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                      errors.authorizedSignerFirstName ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="First Name"
+                  />
+                  {errors.authorizedSignerFirstName && <p className="text-red-500 text-sm mt-1">{errors.authorizedSignerFirstName}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Authorized Signer Last Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.authorizedSignerLastName}
+                    onChange={(e) => handleInputChange('authorizedSignerLastName', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                      errors.authorizedSignerLastName ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Last Name"
+                  />
+                  {errors.authorizedSignerLastName && <p className="text-red-500 text-sm mt-1">{errors.authorizedSignerLastName}</p>}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Authorized Signer Email *
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.authorizedSignerEmail}
+                    onChange={(e) => handleInputChange('authorizedSignerEmail', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                      errors.authorizedSignerEmail ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Email"
+                  />
+                  {errors.authorizedSignerEmail && <p className="text-red-500 text-sm mt-1">{errors.authorizedSignerEmail}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Authorized Signer Job Title *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.authorizedSignerJobTitle}
+                    onChange={(e) => handleInputChange('authorizedSignerJobTitle', e.target.value)}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                      errors.authorizedSignerJobTitle ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="e.g., Operations Manager, Controller"
+                  />
+                  {errors.authorizedSignerJobTitle && <p className="text-red-500 text-sm mt-1">{errors.authorizedSignerJobTitle}</p>}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Authorized Signer Date Started *
+                </label>
+                <input
+                  type="date"
+                  value={formData.authorizedSignerDateStarted}
+                  onChange={(e) => handleInputChange('authorizedSignerDateStarted', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                    errors.authorizedSignerDateStarted ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {errors.authorizedSignerDateStarted && <p className="text-red-500 text-sm mt-1">{errors.authorizedSignerDateStarted}</p>}
+              </div>
+            </div>
+          </div>
+        )
+
+      case 5:
+        return (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Proof of Operating Address File *
+              </label>
+              <input
+                type="file"
+                onChange={(e) => handleFileChange('proofOfOperatingAddressFile', e.target.files?.[0] || null)}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.proofOfOperatingAddressFile ? 'border-red-500' : 'border-gray-300'
+                }`}
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              />
+              {errors.proofOfOperatingAddressFile && <p className="text-red-500 text-sm mt-1">{errors.proofOfOperatingAddressFile}</p>}
+              {formData.proofOfOperatingAddressFile && (
+                <p className="text-sm text-gray-600 mt-1">Selected: {formData.proofOfOperatingAddressFile.name}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Bank Account Wiring Instructions *
+              </label>
+              <input
+                type="file"
+                onChange={(e) => handleFileChange('bankAccountWiringInstructionsFile', e.target.files?.[0] || null)}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.bankAccountWiringInstructionsFile ? 'border-red-500' : 'border-gray-300'
+                }`}
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              />
+              {errors.bankAccountWiringInstructionsFile && <p className="text-red-500 text-sm mt-1">{errors.bankAccountWiringInstructionsFile}</p>}
+              {formData.bankAccountWiringInstructionsFile && (
+                <p className="text-sm text-gray-600 mt-1">Selected: {formData.bankAccountWiringInstructionsFile.name}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Articles of Incorporation File *
+              </label>
+              <input
+                type="file"
+                onChange={(e) => handleFileChange('articlesOfIncorporationFile', e.target.files?.[0] || null)}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.articlesOfIncorporationFile ? 'border-red-500' : 'border-gray-300'
+                }`}
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              />
+              {errors.articlesOfIncorporationFile && <p className="text-red-500 text-sm mt-1">{errors.articlesOfIncorporationFile}</p>}
+              {formData.articlesOfIncorporationFile && (
+                <p className="text-sm text-gray-600 mt-1">Selected: {formData.articlesOfIncorporationFile.name}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Signed Proof of Ownership Document *
+              </label>
+              <input
+                type="file"
+                onChange={(e) => handleFileChange('signedProofOfOwnershipDocumentFile', e.target.files?.[0] || null)}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.signedProofOfOwnershipDocumentFile ? 'border-red-500' : 'border-gray-300'
+                }`}
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              />
+              {errors.signedProofOfOwnershipDocumentFile && <p className="text-red-500 text-sm mt-1">{errors.signedProofOfOwnershipDocumentFile}</p>}
+              {formData.signedProofOfOwnershipDocumentFile && (
+                <p className="text-sm text-gray-600 mt-1">Selected: {formData.signedProofOfOwnershipDocumentFile.name}</p>
+              )}
+            </div>
+          </div>
+        )
+
+      case 6:
+        return (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Primary Source of Fund *
+              </label>
+              <select
+                value={formData.primarySourceOfFund}
+                onChange={(e) => handleInputChange('primarySourceOfFund', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.primarySourceOfFund ? 'border-red-500' : 'border-gray-300'
+                }`}
+              >
+                <option value="">Select primary source of fund</option>
+                <option value="business-revenue">Business Revenue</option>
+                <option value="outside-investment">Outside Investment</option>
+                <option value="loans">Loans</option>
+                <option value="personal-savings">Personal Savings</option>
+                <option value="inheritance">Inheritance</option>
+                <option value="sale-of-assets">Sale of Assets</option>
+                <option value="other">Other</option>
+              </select>
+              {errors.primarySourceOfFund && <p className="text-red-500 text-sm mt-1">{errors.primarySourceOfFund}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Source of Fund Description *
+              </label>
+              <textarea
+                value={formData.sourceOfFundDescription}
+                onChange={(e) => handleInputChange('sourceOfFundDescription', e.target.value)}
+                rows={4}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.sourceOfFundDescription ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Please provide detailed description of your primary source of funds"
+              />
+              {errors.sourceOfFundDescription && <p className="text-red-500 text-sm mt-1">{errors.sourceOfFundDescription}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Estimated Annual Revenue *
+              </label>
+              <input
+                type="text"
+                value={formData.estimatedAnnualRevenue}
+                onChange={(e) => handleInputChange('estimatedAnnualRevenue', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  errors.estimatedAnnualRevenue ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="e.g., $100,000 - $500,000"
+              />
+              {errors.estimatedAnnualRevenue && <p className="text-red-500 text-sm mt-1">{errors.estimatedAnnualRevenue}</p>}
+            </div>
+          </div>
+        )
+
+      case 7:
+        return (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-3">
+                Please select all activities that apply to your business
+              </label>
+              <div className="space-y-2">
+                {[
+                  'Money Services (i.e., check cashing, gift cards, ATMs, remittances)',
+                  'Lending/Banking',
+                  'Operate Foreign Exchange/Virtual Currencies Brokerage/OTC',
+                  'Hold Client Funds (i.e., escrow)',
+                  'Investment Services',
+                  'Safe Deposit Box Rentals',
+                  'Marijuana or Related Services',
+                  'Third-Party Payment Processing',
+                  'Adult Entertainment',
+                  'Weapons, Firearms, and Explosives',
+                  'Gambling',
+                  'None of the above'
+                ].map((activity) => (
+                  <label key={activity} className="flex items-start space-x-3 cursor-pointer py-1">
+                    <input
+                      type="checkbox"
+                      checked={formData.businessActivities.includes(activity)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          handleInputChange('businessActivities', [...formData.businessActivities, activity])
+                        } else {
+                          handleInputChange('businessActivities', formData.businessActivities.filter(a => a !== activity))
+                        }
+                      }}
+                      className="w-4 h-4 mt-0.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700 leading-relaxed">{activity}</span>
+                  </label>
+                ))}
+              </div>
+              {errors.businessActivities && <p className="text-red-500 text-sm mt-1">{errors.businessActivities}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">
+                Enter your expected monthly transaction amount in USD
+              </label>
+              <input
+                type="text"
+                value={formData.expectedMonthlyTransactionAmount}
+                onChange={(e) => handleInputChange('expectedMonthlyTransactionAmount', e.target.value)}
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+                  errors.expectedMonthlyTransactionAmount ? 'border-red-500' : ''
+                }`}
+                placeholder="e.g., $10,000 - $50,000"
+              />
+              {errors.expectedMonthlyTransactionAmount && <p className="text-red-500 text-sm mt-1">{errors.expectedMonthlyTransactionAmount}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">
+                Will this account be used to invest, transfer, or trade funds on behalf of customers or 3rd parties?
+              </label>
+              <div className="flex space-x-6">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="customerAccountUsage"
+                    value="yes"
+                    checked={formData.customerAccountUsage === 'yes'}
+                    onChange={(e) => handleInputChange('customerAccountUsage', e.target.value)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-700">Yes</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="customerAccountUsage"
+                    value="no"
+                    checked={formData.customerAccountUsage === 'no'}
+                    onChange={(e) => handleInputChange('customerAccountUsage', e.target.value)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-700">No</span>
+                </label>
+              </div>
+              {errors.customerAccountUsage && <p className="text-red-500 text-sm mt-1">{errors.customerAccountUsage}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-900 mb-2">
+                If transacting on behalf of customers, please explain if your company has any AML/KYB procedures in place (Type N/A if this doesn't apply to you)
+              </label>
+              <textarea
+                value={formData.amlKybProcedures}
+                onChange={(e) => handleInputChange('amlKybProcedures', e.target.value)}
+                rows={4}
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
+                  errors.amlKybProcedures ? 'border-red-500' : ''
+                }`}
+                placeholder="Describe your AML/KYB procedures or type N/A if not applicable"
+              />
+              {errors.amlKybProcedures && <p className="text-red-500 text-sm mt-1">{errors.amlKybProcedures}</p>}
+            </div>
+          </div>
+        )
+
+      case 8:
         return (
           <div className="space-y-6">
             <div>
@@ -484,6 +1256,80 @@ export default function OnboardingForm() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Any additional information you'd like to share..."
               />
+            </div>
+          </div>
+        )
+
+      case 9:
+        return (
+          <div className="space-y-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-blue-900 mb-4">
+                Network Access Requirements
+              </h3>
+              <p className="text-blue-800 mb-4">
+                To ensure proper functionality of the Innovo platform, please ensure that your organization's network/firewall settings allow access to the following URLs:
+              </p>
+              
+              <div className="space-y-3 mb-4">
+                <div className="flex items-start space-x-3">
+                  <span className="text-blue-600 font-medium min-w-0 flex-shrink-0">•</span>
+                  <div>
+                    <span className="text-blue-800 font-medium">Innovo App:</span>
+                    <span className="text-blue-700 ml-2 break-all">https://app.innovomarkets.com/</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <span className="text-blue-600 font-medium min-w-0 flex-shrink-0">•</span>
+                  <div>
+                    <span className="text-blue-800 font-medium">MetaMask Wallet:</span>
+                    <span className="text-blue-700 ml-2 break-all">https://metamask.io/</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <span className="text-blue-600 font-medium min-w-0 flex-shrink-0">•</span>
+                  <div>
+                    <span className="text-blue-800 font-medium">Innovo Blockchain RPC Endpoint:</span>
+                    <span className="text-blue-700 ml-2 break-all">https://subnets.avax.network/innovo/mainnet/rpc</span>
+                  </div>
+                </div>
+              </div>
+              
+              <p className="text-blue-800 mb-4">
+                If your IT or network security team requires additional information, the Chain ID used by our platform is <span className="font-mono font-semibold">10036</span>.
+              </p>
+              
+              <div className="bg-blue-100 border border-blue-300 rounded-lg p-4">
+                <p className="text-blue-800 font-medium">
+                  📩 Please coordinate with your IT team to whitelist these URLs, if necessary, before proceeding.
+                </p>
+              </div>
+            </div>
+
+            <div className="border-t pt-6">
+              <div className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  id="acceptStripeTerms"
+                  checked={formData.acceptStripeTerms}
+                  onChange={(e) => handleInputChange('acceptStripeTerms', e.target.checked)}
+                  className={`w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 mt-0.5 ${
+                    errors.acceptStripeTerms ? 'border-red-500' : ''
+                  }`}
+                />
+                <label htmlFor="acceptStripeTerms" className="text-sm text-gray-700 leading-relaxed">
+                  Accept the Terms of Service of our payment provider, Stripe (Bridge). *
+                </label>
+              </div>
+              {errors.acceptStripeTerms && <p className="text-red-500 text-sm mt-1">{errors.acceptStripeTerms}</p>}
+            </div>
+
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <p className="text-sm text-gray-600 italic">
+                <strong>Innovo Markets is acting solely as a facilitator in the Know your Business (KYB) process and does not verify, validate, or certify the accuracy of the information provided on this form by the customer.</strong>
+              </p>
             </div>
           </div>
         )
