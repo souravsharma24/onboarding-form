@@ -253,7 +253,8 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
         }))
         
         // Find the last completed step
-        const lastCompletedStep = Math.max(...(savedData.completedSteps || []), 0)
+        const completedSteps = savedData.completedSteps || []
+        const lastCompletedStep = completedSteps.length > 0 ? Math.max(...completedSteps) : 0
         setCurrentStep(lastCompletedStep + 1)
         
         setLastSaved(savedData.lastSaved)
