@@ -25,6 +25,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { saveOnboardingData, loadOnboardingData, saveInviteCode, loadInviteCode, clearOnboardingData } from '@/lib/localStorage'
+import { useBridge } from '@/hooks/useBridge'
 
 interface FormData {
   // Personal Information
@@ -170,6 +171,9 @@ interface PersistentOnboardingFormProps {
 
 export default function PersistentOnboardingForm({ inviteCode, onComplete, onBack }: PersistentOnboardingFormProps) {
   const [currentStep, setCurrentStep] = useState(1)
+  const [bridgeCustomerId, setBridgeCustomerId] = useState<string | null>(null)
+  const [progressPercentage, setProgressPercentage] = useState(0)
+  const { createCustomer, updateCustomer, submitKYCDocuments, submitComplianceInfo, completeOnboarding, loading: bridgeLoading, error: bridgeError } = useBridge()
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -288,7 +292,12 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
   }, [formData])
 
   const handleInputChange = (field: keyof FormData, value: string | string[] | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    console.log('Input change:', field, value)
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value }
+      console.log('New form data:', newData)
+      return newData
+    })
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }))
     }
@@ -378,8 +387,79 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
       
       // Save final data locally
       saveOnboardingData(finalData)
+
+      // Bridge API Integration
+      try {
+        // Step 1: Create customer in Bridge (if not already created)
+        let customerId = bridgeCustomerId
+        if (!customerId) {
+          const customer = await createCustomer({
+            email: formData.email,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            dateOfBirth: formData.dateOfBirth,
+            address: {
+              street: formData.businessStreetAddress,
+              city: formData.businessCity,
+              state: formData.businessState,
+              postalCode: formData.businessPostalCode,
+              country: formData.businessLocatedInUS === 'yes' ? 'US' : formData.businessLocation
+            },
+            businessInfo: {
+              legalName: formData.businessLegalName,
+              dbaName: formData.dbaName,
+              ein: formData.businessEIN,
+              entityType: formData.businessEntityType,
+              industry: formData.businessIndustry,
+              website: formData.businessWebsite,
+              description: formData.businessDescription,
+              address: {
+                street: formData.businessStreetAddress,
+                city: formData.businessCity,
+                state: formData.businessState,
+                postalCode: formData.businessPostalCode
+              }
+            }
+          })
+          customerId = customer.id
+          setBridgeCustomerId(customerId)
+        }
+
+        // Step 2: Submit KYC documents
+        if (customerId && (
+          formData.proofOfOperatingAddressFile ||
+          formData.bankAccountWiringInstructionsFile ||
+          formData.articlesOfIncorporationFile ||
+          formData.signedProofOfOwnershipDocumentFile
+        )) {
+          await submitKYCDocuments(customerId, {
+            proofOfAddress: formData.proofOfOperatingAddressFile,
+            bankAccountWiringInstructions: formData.bankAccountWiringInstructionsFile,
+            articlesOfIncorporation: formData.articlesOfIncorporationFile,
+            proofOfOwnership: formData.signedProofOfOwnershipDocumentFile
+          })
+        }
+
+        // Step 3: Submit compliance information
+        if (customerId) {
+          await submitComplianceInfo(customerId, {
+            businessActivities: formData.businessActivities,
+            expectedMonthlyTransactionAmount: formData.expectedMonthlyTransactionAmount,
+            customerAccountUsage: formData.customerAccountUsage,
+            amlKybProcedures: formData.amlKybProcedures
+          })
+        }
+
+        // Step 4: Complete onboarding
+        if (customerId) {
+          await completeOnboarding(customerId)
+        }
+      } catch (bridgeError) {
+        console.error('Bridge API error:', bridgeError)
+        // Continue with local completion even if Bridge fails
+      }
       
-      // Simulate successful submission
+      // Show success message and complete onboarding
       setSubmitSuccess(true)
       
       // Show success message and complete onboarding
@@ -396,9 +476,38 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
     }
   }
 
-  const getProgressPercentage = () => {
-    return (currentStep / steps.length) * 100
-  }
+  // Update progress when form data changes
+  useEffect(() => {
+    console.log('Progress calculation triggered:', { currentStep, formDataKeys: Object.keys(formData) })
+    
+    // Simple progress calculation based on current step and form completion
+    const currentStepProgress = ((currentStep - 1) / steps.length) * 100
+    
+    // Calculate completion within current step
+    const currentStepFields = steps[currentStep - 1]?.fields || []
+    console.log('Current step fields:', currentStepFields)
+    
+    const completedInCurrentStep = currentStepFields.filter(fieldId => {
+      const value = formData[fieldId as keyof FormData]
+      const isCompleted = Array.isArray(value) ? value.length > 0 : value && value.toString().trim() !== ''
+      console.log(`Field ${fieldId}:`, value, 'completed:', isCompleted)
+      return isCompleted
+    }).length
+    
+    const currentStepCompletion = currentStepFields.length > 0 
+      ? (completedInCurrentStep / currentStepFields.length) * (100 / steps.length)
+      : 0
+    
+    const newProgress = currentStepProgress + currentStepCompletion
+    console.log('Progress calculation:', {
+      currentStepProgress,
+      completedInCurrentStep,
+      currentStepCompletion,
+      newProgress
+    })
+    
+    setProgressPercentage(newProgress)
+  }, [formData, currentStep])
 
   const formatLastSaved = (dateString: string) => {
     if (!dateString) return ''
@@ -703,23 +812,23 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                   Street address *
-                </label>
-                <input
-                  type="text"
+              </label>
+              <input
+                type="text"
                   value={formData.businessStreetAddress}
                   onChange={(e) => handleInputChange('businessStreetAddress', e.target.value)}
                   className={`form-input ${errors.businessStreetAddress ? 'form-input-error' : ''}`}
                   placeholder="Enter street address"
                 />
                 {errors.businessStreetAddress && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.businessStreetAddress}</p>}
-              </div>
+            </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-4">
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                     City *
-                  </label>
-                  <input
+              </label>
+              <input
                     type="text"
                     value={formData.businessCity}
                     onChange={(e) => handleInputChange('businessCity', e.target.value)}
@@ -1414,8 +1523,11 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
         <div className="px-2 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2 sm:gap-0">
             <span className="text-xs sm:text-sm font-medium text-gray-700">
-              Step {currentStep} of {steps.length}
+              Step {currentStep} of {steps.length} - Overall Progress: {Math.round(progressPercentage)}%
             </span>
+            <div className="text-xs text-red-500">
+              DEBUG: {progressPercentage.toFixed(1)}% | Step: {currentStep} | Fields: {steps[currentStep - 1]?.fields?.length || 0}
+            </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               {isSaving && (
                 <div className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-500">
@@ -1434,7 +1546,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
             <motion.div
               className="bg-primary-600 h-2 rounded-full"
               initial={{ width: 0 }}
-              animate={{ width: `${getProgressPercentage()}%` }}
+              animate={{ width: `${progressPercentage}%` }}
               transition={{ duration: 0.3 }}
             />
           </div>
