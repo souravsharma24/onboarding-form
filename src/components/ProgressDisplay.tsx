@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useProgress } from '@/contexts/ProgressContext'
 import { motion } from 'framer-motion'
 
@@ -17,6 +18,11 @@ export default function ProgressDisplay({
   const { progress } = useProgress()
   
   console.log('ProgressDisplay: Current progress', progress)
+  
+  // Force re-render when progress changes
+  useEffect(() => {
+    console.log('ProgressDisplay: Progress updated', progress)
+  }, [progress])
 
   return (
     <div className={`space-y-2 ${className}`}>

@@ -1,19 +1,17 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { calculateOnboardingProgress, calculateStepProgress, OnboardingFormData } from '@/lib/data'
 
 interface ProgressState {
   overallProgress: number
   currentStepProgress: number
   currentStep: number
   totalSteps: number
-  isUpdating: boolean
 }
 
 interface ProgressContextType {
   progress: ProgressState
-  updateProgress: (formData: OnboardingFormData, currentStep: number) => void
+  updateProgress: (stepProgress: number, stepNumber: number) => void
   setCurrentStep: (step: number) => void
   resetProgress: () => void
 }
@@ -29,24 +27,30 @@ export function ProgressProvider({ children }: ProgressProviderProps) {
     overallProgress: 0,
     currentStepProgress: 0,
     currentStep: 1,
-    totalSteps: 9,
-    isUpdating: false
+    totalSteps: 9
   })
 
-  const updateProgress = (formData: OnboardingFormData, currentStep: number) => {
-    // Calculate progress values
-    const overallProgress = calculateOnboardingProgress(formData)
-    const currentStepProgress = calculateStepProgress(formData, currentStep)
+  // Update progress for a specific step
+  const updateProgress = (stepProgress: number, stepNumber: number) => {
+    console.log('ProgressContext: updateProgress called with:', { stepProgress, stepNumber })
     
-    console.log('ProgressContext: Updating progress', { overallProgress, currentStepProgress, currentStep })
-    
-    setProgress(prev => ({
-      ...prev,
-      overallProgress,
-      currentStepProgress,
-      currentStep,
-      isUpdating: false
-    }))
+    setProgress(prev => {
+      // Create a copy of current progress
+      const newProgress = { ...prev }
+      
+      // Update current step progress
+      newProgress.currentStepProgress = stepProgress
+      newProgress.currentStep = stepNumber
+      
+      // Calculate overall progress based on all steps
+      // For simplicity, we'll use a basic calculation
+      // You can enhance this based on your specific needs
+      const stepWeight = 100 / newProgress.totalSteps
+      newProgress.overallProgress = Math.min(100, (stepNumber - 1) * stepWeight + (stepProgress * stepWeight / 100))
+      
+      console.log('ProgressContext: New progress state:', newProgress)
+      return newProgress
+    })
   }
 
   const setCurrentStep = (step: number) => {
@@ -58,11 +62,9 @@ export function ProgressProvider({ children }: ProgressProviderProps) {
       overallProgress: 0,
       currentStepProgress: 0,
       currentStep: 1,
-      totalSteps: 9,
-      isUpdating: false
+      totalSteps: 9
     })
   }
-
 
   return (
     <ProgressContext.Provider value={{
@@ -83,4 +85,3 @@ export function useProgress() {
   }
   return context
 }
-

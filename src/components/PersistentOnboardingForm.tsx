@@ -486,12 +486,37 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
     }
   }
 
-  // Update progress when form data changes (with debouncing for real-time updates)
+  // Update progress when form data changes
   useEffect(() => {
-    console.log('Progress calculation triggered:', { currentStep, formDataKeys: Object.keys(formData) })
+    console.log('Form: Progress calculation triggered', { currentStep, formDataKeys: Object.keys(formData) })
     
-    // Update progress using context
-    updateProgress(formData as OnboardingFormData, currentStep)
+    // Calculate current step progress based on filled fields
+    const currentStepData = steps[currentStep - 1]
+    if (currentStepData) {
+      const filledFields = currentStepData.fields.filter(field => {
+        const value = formData[field as keyof FormData]
+        if (Array.isArray(value)) {
+          return value.length > 0
+        }
+        if (value === null || value === undefined) {
+          return false
+        }
+        if (typeof value === 'boolean') {
+          return value === true
+        }
+        if (value instanceof File) {
+          return value.name && value.name.trim() !== ''
+        }
+        return value.toString().trim() !== ''
+      }).length
+      
+      const stepProgress = Math.round((filledFields / currentStepData.fields.length) * 100)
+      
+      console.log('Form: Calculated progress', { filledFields, totalFields: currentStepData.fields.length, stepProgress, currentStep })
+      
+      // Update progress context
+      updateProgress(stepProgress, currentStep)
+    }
   }, [formData, currentStep, updateProgress])
 
   const formatLastSaved = (dateString: string) => {
@@ -1538,11 +1563,8 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
             <span className="text-xs sm:text-sm font-medium text-gray-700">
               Step {currentStep} of {steps.length} - Step Progress: {Math.round(progress.currentStepProgress)}% | Overall: {Math.round(progress.overallProgress)}%
             </span>
-            <div className="text-xs text-gray-500">
-              DEBUG: Overall: {progress.overallProgress.toFixed(1)}% | Step: {progress.currentStepProgress.toFixed(1)}% | Fields: {steps[currentStep - 1]?.fields?.length || 0}
-            </div>
-            <div className="text-xs text-blue-600">
-              CONTEXT: Overall: {progress.overallProgress}% | Step: {progress.currentStepProgress}% | Current: {progress.currentStep}
+            <div className="text-xs text-red-600">
+              DEBUG: Progress Context - Step: {progress.currentStepProgress}% | Overall: {progress.overallProgress}% | Current: {progress.currentStep}
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               {isSaving && (

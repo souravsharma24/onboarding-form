@@ -6,8 +6,6 @@ import { ArrowRight, CheckCircle, Edit3, Users, Send } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useProgress } from '@/contexts/ProgressContext'
-import { calculateOnboardingProgress, calculateStepProgress, OnboardingFormData } from '@/lib/data'
-import { loadOnboardingData } from '@/lib/localStorage'
 
 interface Section {
   id: string
@@ -41,7 +39,12 @@ interface OnboardingDashboardProps {
 export default function OnboardingDashboard({ onNavigateToSection, onManageCollaborators }: OnboardingDashboardProps) {
   const { user } = useUser()
   const { theme } = useTheme()
-  const { progress, updateProgress } = useProgress()
+  const { progress } = useProgress()
+  
+  // Debug progress updates
+  useEffect(() => {
+    console.log('Dashboard: Progress updated', progress)
+  }, [progress])
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     companyName: 'GreenEnergy Traders Inc.',
     status: 'Draft',
@@ -87,14 +90,7 @@ export default function OnboardingDashboard({ onNavigateToSection, onManageColla
     }
   }, [])
 
-  // Update progress context when dashboard loads
-  useEffect(() => {
-    const formData = loadOnboardingData()
-    if (formData) {
-      // Update progress context with loaded data
-      updateProgress(formData as OnboardingFormData, progress.currentStep)
-    }
-  }, [updateProgress, progress.currentStep])
+  // Dashboard will automatically show progress from context
 
   const sectionCompletion = (section: Section) => {
     // Map section IDs to step numbers
