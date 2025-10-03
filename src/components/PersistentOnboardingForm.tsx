@@ -26,6 +26,8 @@ import {
 } from 'lucide-react'
 import { saveOnboardingData, loadOnboardingData, saveInviteCode, loadInviteCode, clearOnboardingData } from '@/lib/localStorage'
 import { useBridge } from '@/hooks/useBridge'
+import { calculateOnboardingProgress, calculateStepProgress, OnboardingFormData } from '@/lib/data'
+import { useProgress } from '@/contexts/ProgressContext'
 
 interface FormData {
   // Personal Information
@@ -172,8 +174,8 @@ interface PersistentOnboardingFormProps {
 export default function PersistentOnboardingForm({ inviteCode, onComplete, onBack }: PersistentOnboardingFormProps) {
   const [currentStep, setCurrentStep] = useState(1)
   const [bridgeCustomerId, setBridgeCustomerId] = useState<string | null>(null)
-  const [progressPercentage, setProgressPercentage] = useState(0)
   const { createCustomer, updateCustomer, submitKYCDocuments, submitComplianceInfo, completeOnboarding, loading: bridgeLoading, error: bridgeError } = useBridge()
+  const { progress, updateProgress, setCurrentStep: setProgressCurrentStep } = useProgress()
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -255,14 +257,16 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
         // Find the last completed step
         const completedSteps = savedData.completedSteps || []
         const lastCompletedStep = completedSteps.length > 0 ? Math.max(...completedSteps) : 0
-        setCurrentStep(lastCompletedStep + 1)
+        const newStep = lastCompletedStep + 1
+        setCurrentStep(newStep)
+        setProgressCurrentStep(newStep)
         
         setLastSaved(savedData.lastSaved)
       } catch (error) {
         console.error('Error loading saved data:', error)
       }
     }
-  }, [inviteCode])
+  }, [inviteCode, setProgressCurrentStep])
 
   // Auto-save data to localStorage
   const saveToLocalStorage = async (data: FormData) => {
@@ -350,20 +354,25 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
       setFormData(prev => ({ ...prev, completedSteps }))
       
       if (currentStep < steps.length) {
-        setCurrentStep(currentStep + 1)
+        const newStep = currentStep + 1
+        setCurrentStep(newStep)
+        setProgressCurrentStep(newStep)
       }
     }
   }
 
   const prevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
+      const newStep = currentStep - 1
+      setCurrentStep(newStep)
+      setProgressCurrentStep(newStep)
     }
   }
 
   const goToStep = (step: number) => {
     if (step <= currentStep || formData.completedSteps.includes(step - 1)) {
       setCurrentStep(step)
+      setProgressCurrentStep(step)
     }
   }
 
@@ -477,38 +486,13 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
     }
   }
 
-  // Update progress when form data changes
+  // Update progress when form data changes (with debouncing for real-time updates)
   useEffect(() => {
     console.log('Progress calculation triggered:', { currentStep, formDataKeys: Object.keys(formData) })
     
-    // Simple progress calculation based on current step and form completion
-    const currentStepProgress = ((currentStep - 1) / steps.length) * 100
-    
-    // Calculate completion within current step
-    const currentStepFields = steps[currentStep - 1]?.fields || []
-    console.log('Current step fields:', currentStepFields)
-    
-    const completedInCurrentStep = currentStepFields.filter(fieldId => {
-      const value = formData[fieldId as keyof FormData]
-      const isCompleted = Array.isArray(value) ? value.length > 0 : value && value.toString().trim() !== ''
-      console.log(`Field ${fieldId}:`, value, 'completed:', isCompleted)
-      return isCompleted
-    }).length
-    
-    const currentStepCompletion = currentStepFields.length > 0 
-      ? (completedInCurrentStep / currentStepFields.length) * (100 / steps.length)
-      : 0
-    
-    const newProgress = currentStepProgress + currentStepCompletion
-    console.log('Progress calculation:', {
-      currentStepProgress,
-      completedInCurrentStep,
-      currentStepCompletion,
-      newProgress
-    })
-    
-    setProgressPercentage(newProgress)
-  }, [formData, currentStep])
+    // Update progress using context
+    updateProgress(formData as OnboardingFormData, currentStep)
+  }, [formData, currentStep, updateProgress])
 
   const formatLastSaved = (dateString: string) => {
     if (!dateString) return ''
@@ -1501,8 +1485,36 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-2 sm:p-4 md:p-6">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 w-full overflow-hidden">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
+        {/* Sidebar - Hidden on mobile, visible on desktop */}
+        <div className="hidden lg:block lg:col-span-1">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sticky top-6">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">
+              Form Sections
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              {steps.map((step) => (
+                <button
+                  key={step.id}
+                  onClick={() => goToStep(step.id)}
+                  className={`flex flex-col items-center p-2 rounded-lg text-xs font-medium transition-colors ${
+                    currentStep === step.id
+                      ? 'bg-primary-50 text-primary-700 border border-primary-200'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <step.icon className="w-4 h-4 mb-1" />
+                  <span className="text-center leading-tight">{step.title}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Form */}
+        <div className="col-span-1 lg:col-span-3">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 w-full overflow-hidden">
         {/* Header */}
         <div className="px-2 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -1524,10 +1536,13 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
         <div className="px-2 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2 sm:gap-0">
             <span className="text-xs sm:text-sm font-medium text-gray-700">
-              Step {currentStep} of {steps.length} - Overall Progress: {Math.round(progressPercentage)}%
+              Step {currentStep} of {steps.length} - Step Progress: {Math.round(progress.currentStepProgress)}% | Overall: {Math.round(progress.overallProgress)}%
             </span>
-            <div className="text-xs text-red-500">
-              DEBUG: {progressPercentage.toFixed(1)}% | Step: {currentStep} | Fields: {steps[currentStep - 1]?.fields?.length || 0}
+            <div className="text-xs text-gray-500">
+              DEBUG: Overall: {progress.overallProgress.toFixed(1)}% | Step: {progress.currentStepProgress.toFixed(1)}% | Fields: {steps[currentStep - 1]?.fields?.length || 0}
+            </div>
+            <div className="text-xs text-blue-600">
+              CONTEXT: Overall: {progress.overallProgress}% | Step: {progress.currentStepProgress}% | Current: {progress.currentStep}
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               {isSaving && (
@@ -1543,11 +1558,22 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
               )}
             </div>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          {/* Overall Progress Bar */}
+          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
             <motion.div
               className="bg-primary-600 h-2 rounded-full"
               initial={{ width: 0 }}
-              animate={{ width: `${progressPercentage}%` }}
+              animate={{ width: `${progress.overallProgress}%` }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
+          
+          {/* Current Step Progress Bar */}
+          <div className="w-full bg-gray-100 rounded-full h-1">
+            <motion.div
+              className="bg-green-500 h-1 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress.currentStepProgress}%` }}
               transition={{ duration: 0.3 }}
             />
           </div>
@@ -1566,7 +1592,7 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                       : currentStep === step.id
                       ? 'border-primary-600 text-primary-600'
                       : formData.completedSteps.includes(step.id - 1)
-                      ? 'border-green-500 text-green-500 cursor-pointer hover:bg-green-50'
+                      ? 'border-green-500 text-green-500 cursor-pointer   hover:bg-green-50'
                       : 'border-gray-300 text-gray-400'
                   }`}
                 >
@@ -1792,6 +1818,8 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
               )}
             </div>
           </div>
+        </div>
+        </div>
         </div>
       </div>
     </div>

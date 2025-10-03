@@ -12,8 +12,8 @@ import OnboardingManager from '@/components/OnboardingManager'
 import { mockData, getMetrics } from '@/lib/data'
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState('settle')
-  const [sidebarTab, setSidebarTab] = useState('settle')
+  const [activeTab, setActiveTab] = useState('onboarding')
+  const [sidebarTab, setSidebarTab] = useState('onboarding')
 
   const tabs = ['buy', 'sell', 'settle']
   const metrics = getMetrics(activeTab)
@@ -48,7 +48,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
-      <Sidebar activeTab={sidebarTab} onTabChange={handleSidebarTabChange} />
+      {/* <Sidebar activeTab={sidebarTab} onTabChange={handleSidebarTabChange} /> */}
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header activeTab={sidebarTab} onTabChange={handleSidebarTabChange} />

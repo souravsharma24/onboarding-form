@@ -5,6 +5,9 @@ import { motion } from 'framer-motion'
 import { ArrowRight, CheckCircle, Edit3, Users, Send } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useProgress } from '@/contexts/ProgressContext'
+import { calculateOnboardingProgress, calculateStepProgress, OnboardingFormData } from '@/lib/data'
+import { loadOnboardingData } from '@/lib/localStorage'
 
 interface Section {
   id: string
@@ -38,6 +41,7 @@ interface OnboardingDashboardProps {
 export default function OnboardingDashboard({ onNavigateToSection, onManageCollaborators }: OnboardingDashboardProps) {
   const { user } = useUser()
   const { theme } = useTheme()
+  const { progress, updateProgress } = useProgress()
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     companyName: 'GreenEnergy Traders Inc.',
     status: 'Draft',
@@ -59,15 +63,70 @@ export default function OnboardingDashboard({ onNavigateToSection, onManageColla
     }
   }, [])
 
+  // Listen for form data changes to update progress
+  useEffect(() => {
+    const handleDataChange = () => {
+      // Force re-render when form data changes
+      setOnboardingData(prev => ({ ...prev }))
+    }
+
+    const handleProgressChange = (event: CustomEvent) => {
+      // Force re-render when progress changes
+      setOnboardingData(prev => ({ ...prev }))
+    }
+
+    // Listen for storage events and custom events
+    window.addEventListener('storage', handleDataChange)
+    window.addEventListener('onboardingDataChanged', handleDataChange)
+    window.addEventListener('onboardingProgressChanged', handleProgressChange as EventListener)
+
+    return () => {
+      window.removeEventListener('storage', handleDataChange)
+      window.removeEventListener('onboardingDataChanged', handleDataChange)
+      window.removeEventListener('onboardingProgressChanged', handleProgressChange as EventListener)
+    }
+  }, [])
+
+  // Update progress context when dashboard loads
+  useEffect(() => {
+    const formData = loadOnboardingData()
+    if (formData) {
+      // Update progress context with loaded data
+      updateProgress(formData as OnboardingFormData, progress.currentStep)
+    }
+  }, [updateProgress, progress.currentStep])
+
   const sectionCompletion = (section: Section) => {
+    // Map section IDs to step numbers
+    const sectionToStepMap: { [key: string]: number } = {
+      'your-info': 1,
+      'business-info': 3,
+      'ownership': 4,
+      'docs': 5,
+      'funds': 6,
+      'compliance': 7,
+      'terms': 9
+    }
+    
+    const stepNumber = sectionToStepMap[section.id]
+    if (stepNumber) {
+      // Use progress context for current step, fallback to 0 for other steps
+      if (stepNumber === progress.currentStep) {
+        return progress.currentStepProgress
+      } else {
+        // For completed steps, return 100%, for future steps return 0%
+        return stepNumber < progress.currentStep ? 100 : 0
+      }
+    }
+    
+    // Fallback to section-based calculation
     if (section.requiredFields === 0) return 100
     return Math.min(100, (section.completedFields / section.requiredFields) * 100)
   }
 
   const appCompletion = () => {
-    const totalRequired = onboardingData.sections.reduce((sum, s) => sum + s.requiredFields, 0)
-    const totalCompleted = onboardingData.sections.reduce((sum, s) => sum + s.completedFields, 0)
-    return totalRequired === 0 ? 0 : Math.floor((totalCompleted / totalRequired) * 100)
+    // Use progress from context
+    return progress.overallProgress
   }
 
   const allSectionsComplete = () => {
@@ -277,6 +336,7 @@ export default function OnboardingDashboard({ onNavigateToSection, onManageColla
               />
             </div>
           </div>
+
         </motion.div>
       </div>
 
