@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Bell, ChevronDown, Sun, Moon, User, Settings } from 'lucide-react'
-import MobileNavigation from './MobileNavigation'
+// import MobileNavigation from './MobileNavigation'
 import UserSettings from '../ui/UserSettings'
 import { useUser } from '@/contexts/UserContext'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -39,7 +39,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-3 sm:px-4 md:px-6 py-3 sm:py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
-          <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} />
+          {/* <MobileNavigation activeTab={activeTab} onTabChange={onTabChange} /> */}
           {/* Innovo Logo */}
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
