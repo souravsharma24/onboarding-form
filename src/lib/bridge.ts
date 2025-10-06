@@ -14,7 +14,12 @@ const BRIDGE_API_KEY = process.env.NEXT_PUBLIC_BRIDGE_API_KEY || process.env.BRI
 // Check if we're using a test/dummy API key
 const isTestMode = BRIDGE_API_KEY && BRIDGE_API_KEY.startsWith('test_')
 
-if (!BRIDGE_API_KEY) {
+// Bridge API Feature Flag - Set to false to disable Bridge API functionality
+const BRIDGE_API_ENABLED = false
+
+if (!BRIDGE_API_ENABLED) {
+  console.log('🚫 Bridge API is DISABLED - All Bridge functionality is inactive')
+} else if (!BRIDGE_API_KEY) {
   console.warn('Bridge API key not found. Please set NEXT_PUBLIC_BRIDGE_API_KEY or BRIDGE_API_KEY environment variable.')
 } else if (isTestMode) {
   console.log('🧪 Bridge API running in TEST MODE with dummy key:', BRIDGE_API_KEY)
@@ -106,6 +111,24 @@ export class BridgeService {
    */
   static async createCustomer(customerData: CreateCustomerRequest): Promise<BridgeCustomer> {
     try {
+      // If Bridge API is disabled, return a mock customer
+      if (!BRIDGE_API_ENABLED) {
+        console.log('🚫 Bridge API DISABLED: Returning mock customer for:', customerData.email)
+        const mockCustomer: BridgeCustomer = {
+          id: 'disabled_customer_' + Date.now(),
+          email: customerData.email,
+          firstName: customerData.firstName,
+          lastName: customerData.lastName,
+          dateOfBirth: customerData.dateOfBirth,
+          address: customerData.address,
+          businessInfo: customerData.businessInfo,
+          kycStatus: 'pending',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+        return mockCustomer
+      }
+
       // In test mode, return a mock customer
       if (isTestMode) {
         console.log('🧪 TEST MODE: Creating mock customer with data:', customerData)
@@ -137,6 +160,20 @@ export class BridgeService {
    */
   static async getCustomer(customerId: string): Promise<BridgeCustomer> {
     try {
+      // If Bridge API is disabled, return a mock customer
+      if (!BRIDGE_API_ENABLED) {
+        console.log('🚫 Bridge API DISABLED: Returning mock customer for ID:', customerId)
+        return {
+          id: customerId,
+          email: 'disabled@example.com',
+          firstName: 'Disabled',
+          lastName: 'Customer',
+          kycStatus: 'pending',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      }
+
       const response = await bridgeAPI.get<BridgeAPIResponse<BridgeCustomer>>(`/customers/${customerId}`)
       return response.data.data
     } catch (error) {
@@ -150,6 +187,20 @@ export class BridgeService {
    */
   static async updateCustomer(customerId: string, customerData: Partial<CreateCustomerRequest>): Promise<BridgeCustomer> {
     try {
+      // If Bridge API is disabled, return a mock updated customer
+      if (!BRIDGE_API_ENABLED) {
+        console.log('🚫 Bridge API DISABLED: Returning mock updated customer for ID:', customerId)
+        return {
+          id: customerId,
+          email: customerData.email || 'disabled@example.com',
+          firstName: customerData.firstName || 'Disabled',
+          lastName: customerData.lastName || 'Customer',
+          kycStatus: 'pending',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      }
+
       const response = await bridgeAPI.put<BridgeAPIResponse<BridgeCustomer>>(`/customers/${customerId}`, customerData)
       return response.data.data
     } catch (error) {
@@ -168,6 +219,15 @@ export class BridgeService {
     proofOfOwnership?: File
   }): Promise<{ success: boolean; message: string }> {
     try {
+      // If Bridge API is disabled, return a mock success response
+      if (!BRIDGE_API_ENABLED) {
+        console.log('🚫 Bridge API DISABLED: Returning mock KYC submission for customer:', customerId)
+        return {
+          success: true,
+          message: 'KYC documents submitted successfully (Bridge API Disabled)'
+        }
+      }
+
       // In test mode, return a mock success response
       if (isTestMode) {
         console.log('🧪 TEST MODE: Submitting mock KYC documents for customer:', customerId)
@@ -215,6 +275,15 @@ export class BridgeService {
    */
   static async getKYCStatus(customerId: string): Promise<{ status: string; details?: any }> {
     try {
+      // If Bridge API is disabled, return a mock KYC status
+      if (!BRIDGE_API_ENABLED) {
+        console.log('🚫 Bridge API DISABLED: Returning mock KYC status for customer:', customerId)
+        return {
+          status: 'pending',
+          details: { message: 'Bridge API is disabled - KYC status is pending' }
+        }
+      }
+
       const response = await bridgeAPI.get<BridgeAPIResponse<{ status: string; details?: any }>>(`/customers/${customerId}/kyc/status`)
       return response.data.data
     } catch (error) {
@@ -233,6 +302,15 @@ export class BridgeService {
     amlKybProcedures: string
   }): Promise<{ success: boolean; message: string }> {
     try {
+      // If Bridge API is disabled, return a mock success response
+      if (!BRIDGE_API_ENABLED) {
+        console.log('🚫 Bridge API DISABLED: Returning mock compliance submission for customer:', customerId)
+        return {
+          success: true,
+          message: 'Compliance information submitted successfully (Bridge API Disabled)'
+        }
+      }
+
       // In test mode, return a mock success response
       if (isTestMode) {
         console.log('🧪 TEST MODE: Submitting mock compliance info for customer:', customerId)
@@ -260,6 +338,15 @@ export class BridgeService {
    */
   static async completeOnboarding(customerId: string): Promise<{ success: boolean; message: string }> {
     try {
+      // If Bridge API is disabled, return a mock success response
+      if (!BRIDGE_API_ENABLED) {
+        console.log('🚫 Bridge API DISABLED: Returning mock onboarding completion for customer:', customerId)
+        return {
+          success: true,
+          message: 'Onboarding completed successfully (Bridge API Disabled)'
+        }
+      }
+
       // In test mode, return a mock success response
       if (isTestMode) {
         console.log('🧪 TEST MODE: Completing mock onboarding for customer:', customerId)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ChevronLeft, 
@@ -27,7 +27,6 @@ import {
 import { saveOnboardingData, loadOnboardingData, saveInviteCode, loadInviteCode, clearOnboardingData } from '@/lib/localStorage'
 import { useBridge } from '@/hooks/useBridge'
 import { calculateOnboardingProgress, calculateStepProgress, OnboardingFormData } from '@/lib/data'
-import { useProgress } from '@/contexts/ProgressContext'
 
 interface FormData {
   // Personal Information
@@ -175,7 +174,6 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
   const [currentStep, setCurrentStep] = useState(1)
   const [bridgeCustomerId, setBridgeCustomerId] = useState<string | null>(null)
   const { createCustomer, updateCustomer, submitKYCDocuments, submitComplianceInfo, completeOnboarding, loading: bridgeLoading, error: bridgeError } = useBridge()
-  const { progress, updateProgress, setCurrentStep: setProgressCurrentStep } = useProgress()
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -259,14 +257,13 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
         const lastCompletedStep = completedSteps.length > 0 ? Math.max(...completedSteps) : 0
         const newStep = lastCompletedStep + 1
         setCurrentStep(newStep)
-        setProgressCurrentStep(newStep)
         
         setLastSaved(savedData.lastSaved)
       } catch (error) {
         console.error('Error loading saved data:', error)
       }
     }
-  }, [inviteCode, setProgressCurrentStep])
+  }, [inviteCode])
 
   // Auto-save data to localStorage
   const saveToLocalStorage = async (data: FormData) => {
@@ -356,7 +353,6 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
       if (currentStep < steps.length) {
         const newStep = currentStep + 1
         setCurrentStep(newStep)
-        setProgressCurrentStep(newStep)
       }
     }
   }
@@ -365,14 +361,12 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
     if (currentStep > 1) {
       const newStep = currentStep - 1
       setCurrentStep(newStep)
-      setProgressCurrentStep(newStep)
     }
   }
 
   const goToStep = (step: number) => {
     if (step <= currentStep || formData.completedSteps.includes(step - 1)) {
       setCurrentStep(step)
-      setProgressCurrentStep(step)
     }
   }
 
@@ -486,38 +480,6 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
     }
   }
 
-  // Update progress when form data changes
-  useEffect(() => {
-    console.log('Form: Progress calculation triggered', { currentStep, formDataKeys: Object.keys(formData) })
-    
-    // Calculate current step progress based on filled fields
-    const currentStepData = steps[currentStep - 1]
-    if (currentStepData) {
-      const filledFields = currentStepData.fields.filter(field => {
-        const value = formData[field as keyof FormData]
-        if (Array.isArray(value)) {
-          return value.length > 0
-        }
-        if (value === null || value === undefined) {
-          return false
-        }
-        if (typeof value === 'boolean') {
-          return value === true
-        }
-        if (value instanceof File) {
-          return value.name && value.name.trim() !== ''
-        }
-        return value.toString().trim() !== ''
-      }).length
-      
-      const stepProgress = Math.round((filledFields / currentStepData.fields.length) * 100)
-      
-      console.log('Form: Calculated progress', { filledFields, totalFields: currentStepData.fields.length, stepProgress, currentStep })
-      
-      // Update progress context
-      updateProgress(stepProgress, currentStep)
-    }
-  }, [formData, currentStep, updateProgress])
 
   const formatLastSaved = (dateString: string) => {
     if (!dateString) return ''
@@ -1557,15 +1519,12 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
           </div>
         </div>
 
-        {/* Progress Bar */}
+        {/* Step Header */}
         <div className="px-2 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-gray-200">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2 sm:gap-0">
             <span className="text-xs sm:text-sm font-medium text-gray-700">
-              Step {currentStep} of {steps.length} - Step Progress: {Math.round(progress.currentStepProgress)}% | Overall: {Math.round(progress.overallProgress)}%
+              Step {currentStep} of {steps.length}
             </span>
-            <div className="text-xs text-red-600">
-              DEBUG: Progress Context - Step: {progress.currentStepProgress}% | Overall: {progress.overallProgress}% | Current: {progress.currentStep}
-            </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
               {isSaving && (
                 <div className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-500">
@@ -1579,25 +1538,6 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                 </span>
               )}
             </div>
-          </div>
-          {/* Overall Progress Bar */}
-          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-            <motion.div
-              className="bg-primary-600 h-2 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress.overallProgress}%` }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-          
-          {/* Current Step Progress Bar */}
-          <div className="w-full bg-gray-100 rounded-full h-1">
-            <motion.div
-              className="bg-green-500 h-1 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress.currentStepProgress}%` }}
-              transition={{ duration: 0.3 }}
-            />
           </div>
         </div>
 
@@ -1624,11 +1564,6 @@ export default function PersistentOnboardingForm({ inviteCode, onComplete, onBac
                     <step.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                 </button>
-                {index < steps.length - 1 && (
-                  <div className={`w-8 sm:w-16 h-0.5 mx-1 sm:mx-2 ${
-                    currentStep > step.id || formData.completedSteps.includes(step.id - 1) ? 'bg-primary-600' : 'bg-gray-300'
-                  }`} />
-                )}
               </div>
             ))}
           </div>

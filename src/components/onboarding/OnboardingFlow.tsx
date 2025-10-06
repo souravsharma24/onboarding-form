@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle, ArrowLeft } from 'lucide-react'
-import InviteCodeForm from './InviteCodeForm'
+import InviteCodeForm from '../ui/InviteCodeForm'
 import PersistentOnboardingForm from './PersistentOnboardingForm'
 
 interface OnboardingFlowProps {

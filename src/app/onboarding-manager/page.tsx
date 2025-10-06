@@ -1,6 +1,6 @@
 'use client'
 
-import OnboardingManager from '@/components/OnboardingManager'
+import OnboardingManager from '@/components/onboarding/OnboardingManager'
 
 export default function OnboardingManagerPage() {
   const handleBack = () => {

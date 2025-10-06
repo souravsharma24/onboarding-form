@@ -1348,23 +1348,12 @@ export default function OnboardingForm() {
           <p className="text-gray-600 mt-1">Please complete all steps to get started</p>
         </div>
 
-        {/* Progress Bar */}
+        {/* Step Header */}
         <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-700">
               Step {currentStep} of {steps.length}
             </span>
-            <span className="text-sm text-gray-500">
-              {Math.round(getProgressPercentage())}% Complete
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <motion.div
-              className="bg-primary-600 h-2 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${getProgressPercentage()}%` }}
-              transition={{ duration: 0.3 }}
-            />
           </div>
         </div>
 

@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create customer in Bridge
+    // Create customer in Bridge (will return mock data if disabled)
     const customer = await BridgeService.createCustomer(customerData)
 
     return NextResponse.json({
@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Get customer from Bridge (will return mock data if disabled)
     const customer = await BridgeService.getCustomer(customerId)
 
     return NextResponse.json({

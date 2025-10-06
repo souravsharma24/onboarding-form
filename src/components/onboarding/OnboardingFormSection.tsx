@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Save, CheckCircle, ArrowLeft } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Save, CheckCircle, ArrowLeft, AlertCircle } from 'lucide-react'
 import { useTheme } from '@/contexts/ThemeContext'
+import SimpleProgressBar from '@/components/progress/SimpleProgressBar'
+import { validateField } from '@/lib/validation'
 
 interface Field {
   id: string
@@ -106,24 +108,107 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
   const [formData, setFormData] = useState<Record<string, string | string[]>>({})
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<string>('')
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({})
 
   const fields = sectionFields[sectionId] || []
   const sectionTitle = sectionTitles[sectionId] || 'Unknown Section'
 
+  // Validation functions
+  const validateFieldValue = (fieldId: string, value: string | string[], fieldType: string) => {
+    const validation = validateField(fieldId, value, fieldType)
+    
+    // Only update error state if there's an error or if the field is now valid
+    if (!validation.isValid) {
+      setFieldErrors(prev => ({
+        ...prev,
+        [fieldId]: validation.error || ''
+      }))
+    } else {
+      // Only clear error if field is now valid
+      setFieldErrors(prev => ({
+        ...prev,
+        [fieldId]: ''
+      }))
+    }
+    
+    return validation.isValid
+  }
+
+  const isFieldValid = (fieldId: string) => {
+    return !fieldErrors[fieldId] || fieldErrors[fieldId] === ''
+  }
+
+  const hasValidationErrors = () => {
+    return Object.values(fieldErrors).some(error => error !== '')
+  }
+
+
+  // Validate existing data on mount
+  useEffect(() => {
+    // Validate all fields with existing data
+    fields.forEach(field => {
+      const value = formData[field.id]
+      if (value && (Array.isArray(value) ? value.length > 0 : value.toString().trim() !== '')) {
+        validateFieldValue(field.id, value, field.type)
+        setTouchedFields(prev => ({ ...prev, [field.id]: true }))
+      }
+    })
+  }, [formData])
 
   // Load saved data from localStorage
   useEffect(() => {
-    const savedData = localStorage.getItem(`innovo_section_${sectionId}`)
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData)
-        setFormData(parsed.data || {})
-        setLastSaved(parsed.lastSaved || '')
-      } catch (error) {
-        console.error('Error loading saved data:', error)
+    const loadFormData = () => {
+      let loadedData: Record<string, string | string[]> = {}
+      let dataSource = ''
+
+      // First try to load from section-specific storage
+      const sectionData = localStorage.getItem(`innovo_section_${sectionId}`)
+      if (sectionData) {
+        try {
+          const parsed = JSON.parse(sectionData)
+          loadedData = parsed.data || {}
+          setLastSaved(parsed.lastSaved || '')
+          dataSource = 'section'
+        } catch (error) {
+          console.error('Error loading section data:', error)
+        }
       }
-    } else {
-      // Set default values for certain fields
+
+      // If no section data, try to load from main form data
+      if (Object.keys(loadedData).length === 0) {
+        const mainFormData = localStorage.getItem('innovo_onboarding_form')
+        if (mainFormData) {
+          try {
+            const parsed = JSON.parse(mainFormData)
+            // Extract relevant fields for this section
+            const currentSectionFields = sectionFields[sectionId] || []
+            
+            currentSectionFields.forEach(field => {
+              if (parsed[field.id] !== undefined) {
+                loadedData[field.id] = parsed[field.id]
+              }
+            })
+            dataSource = 'main'
+          } catch (error) {
+            console.error('Error loading main form data:', error)
+          }
+        }
+      }
+
+      // Set the loaded data
+      if (Object.keys(loadedData).length > 0) {
+          setFormData(loadedData)
+        return true
+      }
+
+      return false
+    }
+
+    const dataLoaded = loadFormData()
+
+    // Set default values for certain fields if no data found
+    if (!dataLoaded) {
       const defaultValues: Record<string, string> = {}
       if (sectionId === 'compliance') {
         defaultValues.customerAccountUsage = 'no'
@@ -132,6 +217,35 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
         setFormData(defaultValues)
       }
     }
+  }, [sectionId])
+
+
+  // Listen for storage changes to sync data
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'innovo_onboarding_form' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue)
+          const currentSectionFields = sectionFields[sectionId] || []
+          const relevantData: Record<string, string | string[]> = {}
+          
+          currentSectionFields.forEach(field => {
+            if (parsed[field.id] !== undefined) {
+              relevantData[field.id] = parsed[field.id]
+            }
+          })
+          
+          if (Object.keys(relevantData).length > 0) {
+            setFormData(relevantData)
+          }
+        } catch (error) {
+          console.error('Error syncing from storage change:', error)
+        }
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
   }, [sectionId])
 
   // Auto-save data
@@ -144,6 +258,18 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
       }
       localStorage.setItem(`innovo_section_${sectionId}`, JSON.stringify(dataToSave))
       setLastSaved(dataToSave.lastSaved)
+      
+      // Also sync to main form storage
+      const mainFormData = localStorage.getItem('innovo_onboarding_form')
+      if (mainFormData) {
+        try {
+          const parsed = JSON.parse(mainFormData)
+          const updatedData = { ...parsed, ...formData }
+          localStorage.setItem('innovo_onboarding_form', JSON.stringify(updatedData))
+        } catch (error) {
+          console.error('Error syncing to main form:', error)
+        }
+      }
     } catch (error) {
       console.error('Error saving data:', error)
     } finally {
@@ -164,22 +290,78 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
 
   const handleInputChange = (fieldId: string, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [fieldId]: value }))
+    
+    // Mark field as touched
+    setTouchedFields(prev => ({ ...prev, [fieldId]: true }))
+    
+    // Validate the field
+    const field = fields.find(f => f.id === fieldId)
+    if (field) {
+      validateFieldValue(fieldId, value, field.type)
+    }
   }
 
   const calculateCompletion = () => {
     const requiredFields = fields.filter(f => f.required)
     const completedFields = requiredFields.filter(f => {
       const value = formData[f.id]
-      if (Array.isArray(value)) {
-        return value.length > 0
-      }
-      return value?.trim()
+      const hasValue = Array.isArray(value) ? value.length > 0 : value?.trim()
+      
+      // Only count as completed if it has a value AND passes validation
+      if (!hasValue) return false
+      
+      // Check if field has validation errors
+      const hasError = fieldErrors[f.id] && fieldErrors[f.id] !== ''
+      return !hasError
     })
     return requiredFields.length === 0 ? 100 : (completedFields.length / requiredFields.length) * 100
   }
 
   const handleSave = () => {
-    saveData()
+    // Validate all fields before saving
+    let hasErrors = false
+    fields.forEach(field => {
+      if (field.required) {
+        const value = formData[field.id]
+        const isValid = validateFieldValue(field.id, value, field.type)
+        if (!isValid) {
+          hasErrors = true
+        }
+        setTouchedFields(prev => ({ ...prev, [field.id]: true }))
+      }
+    })
+
+    if (!hasErrors) {
+      saveData()
+    } else {
+      alert('Please fix all validation errors before saving.')
+    }
+  }
+
+  const handleNextAndSave = () => {
+    // Validate all fields before proceeding
+    let hasErrors = false
+    fields.forEach(field => {
+      if (field.required) {
+        const value = formData[field.id]
+        const isValid = validateFieldValue(field.id, value, field.type)
+        if (!isValid) {
+          hasErrors = true
+        }
+        setTouchedFields(prev => ({ ...prev, [field.id]: true }))
+      }
+    })
+
+    if (!hasErrors) {
+      saveData()
+      onNext()
+    } else {
+      alert('Please fix all validation errors before proceeding.')
+    }
+  }
+
+  const handleClearField = (fieldId: string) => {
+    setFormData(prev => ({ ...prev, [fieldId]: '' }))
   }
 
   const formatLastSaved = (dateString: string) => {
@@ -190,6 +372,8 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
 
   const renderField = (field: Field) => {
     const value = formData[field.id] || ''
+    const hasError = fieldErrors[field.id] && fieldErrors[field.id] !== ''
+    const isValid = !hasError && touchedFields[field.id] && isFieldValid(field.id)
 
     switch (field.type) {
       case 'select':
@@ -197,7 +381,7 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
           <select
             value={value}
             onChange={(e) => handleInputChange(field.id, e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
           >
             <option value="">Select an option</option>
             {field.options?.map(option => (
@@ -251,13 +435,33 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
 
       case 'textarea':
         return (
-          <textarea
-            value={value}
-            onChange={(e) => handleInputChange(field.id, e.target.value)}
-            placeholder={field.placeholder}
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-          />
+          <div>
+            <textarea
+              value={value}
+              onChange={(e) => handleInputChange(field.id, e.target.value)}
+              placeholder={field.placeholder}
+              rows={4}
+              className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors resize-vertical ${
+                hasError 
+                  ? 'border-red-500 dark:border-red-400 focus:ring-red-500 focus:border-red-500' 
+                  : isValid 
+                    ? 'border-green-500 dark:border-green-400 focus:ring-green-500 focus:border-green-500'
+                    : 'border-gray-300 dark:border-gray-600'
+              }`}
+            />
+            {hasError && (
+              <div className="mt-1 flex items-center space-x-1 text-red-600 dark:text-red-400">
+                <AlertCircle className="w-4 h-4" />
+                <span className="text-sm">{fieldErrors[field.id]}</span>
+              </div>
+            )}
+            {isValid && (
+              <div className="mt-1 flex items-center space-x-1 text-green-600 dark:text-green-400">
+                <CheckCircle className="w-4 h-4" />
+                <span className="text-sm">Valid</span>
+              </div>
+            )}
+          </div>
         )
 
       case 'file':
@@ -276,13 +480,33 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
 
       default:
         return (
-          <input
-            type={field.type}
-            value={value}
-            onChange={(e) => handleInputChange(field.id, e.target.value)}
-            placeholder={field.placeholder}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-          />
+          <div>
+            <input
+              type={field.type}
+              value={value}
+              onChange={(e) => handleInputChange(field.id, e.target.value)}
+              placeholder={field.placeholder}
+              className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors ${
+                hasError 
+                  ? 'border-red-500 dark:border-red-400 focus:ring-red-500 focus:border-red-500' 
+                  : isValid 
+                    ? 'border-green-500 dark:border-green-400 focus:ring-green-500 focus:border-green-500'
+                    : 'border-gray-300 dark:border-gray-600'
+              }`}
+            />
+            {hasError && (
+              <div className="mt-1 flex items-center space-x-1 text-red-600 dark:text-red-400">
+                <AlertCircle className="w-4 h-4" />
+                <span className="text-sm">{fieldErrors[field.id]}</span>
+              </div>
+            )}
+            {isValid && (
+              <div className="mt-1 flex items-center space-x-1 text-green-600 dark:text-green-400">
+                <CheckCircle className="w-4 h-4" />
+                <span className="text-sm">Valid</span>
+              </div>
+            )}
+          </div>
         )
     }
   }
@@ -380,13 +604,10 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
                   {sectionTitle}
                 </h2>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mt-2 space-y-2 sm:space-y-0">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    completion === 100 
-                      ? (theme === 'dark' ? 'bg-green-900/20 text-green-400' : 'bg-green-100 text-green-800')
-                      : (theme === 'dark' ? 'bg-yellow-900/20 text-yellow-400' : 'bg-yellow-100 text-yellow-800')
-                  }`}>
-                    {Math.round(completion)}% Complete
-                  </span>
+                  {/* Progress bar for all sections */}
+                  <div className="w-full sm:w-auto">
+                    <SimpleProgressBar sectionId={sectionId} />
+                  </div>
                   {isSaving && (
                     <span className={`text-sm flex items-center space-x-1 ${
                       theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
@@ -417,19 +638,6 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
               </button>
             </div>
 
-            {/* Progress Bar */}
-            <div className="mb-6">
-              <div className={`w-full rounded-full h-2 ${
-                theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'
-              }`}>
-                <motion.div
-                  className="bg-primary-600 h-2 rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${completion}%` }}
-                  transition={{ duration: 0.3 }}
-                />
-              </div>
-            </div>
 
             {/* Form Fields */}
             <div className="space-y-6">
@@ -555,12 +763,27 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
                     transition={{ delay: index * 0.1 }}
                     className="space-y-2"
                   >
-                    <label className={`block text-sm font-medium ${
-                      theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                    }`}>
-                      {field.label}
-                      {field.required && <span className="text-red-500 ml-1">*</span>}
-                    </label>
+                    <div className="flex items-center justify-between">
+                      <label className={`block text-sm font-medium ${
+                        theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
+                      }`}>
+                        {field.label}
+                        {field.required && <span className="text-red-500 ml-1">*</span>}
+                      </label>
+                      {formData[field.id] && (
+                        <button
+                          type="button"
+                          onClick={() => handleClearField(field.id)}
+                          className={`text-xs px-2 py-1 rounded transition-colors ${
+                            theme === 'dark' 
+                              ? 'text-gray-400 hover:text-gray-200 hover:bg-gray-700' 
+                              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
                     {renderField(field)}
                     {field.help && (
                       <p className={`text-sm ${
@@ -604,8 +827,23 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
                   <span>Save Draft</span>
                 </button>
                 
+                {Object.keys(formData).length > 0 && (
+                  <button
+                    onClick={() => {
+                      setFormData({})
+                    }}
+                    className={`flex items-center justify-center space-x-2 font-medium py-2 px-4 rounded-lg transition-colors ${
+                      theme === 'dark'
+                        ? 'bg-red-700 hover:bg-red-600 text-white'
+                        : 'bg-red-200 hover:bg-red-300 text-red-800'
+                    }`}
+                  >
+                    <span>Reset Section</span>
+                  </button>
+                )}
+                
                 <button
-                  onClick={onNext}
+                  onClick={handleNextAndSave}
                   className="flex items-center justify-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
                 >
                   <span>Next & Save</span>
@@ -641,7 +879,7 @@ export default function OnboardingFormSection({ sectionId, onBack, onNext, onPre
                   </button>
                   
                   <button
-                    onClick={onNext}
+                    onClick={handleNextAndSave}
                     className="flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
                   >
                     <span>Next & Save</span>

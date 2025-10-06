@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Bell, ChevronDown, Sun, Moon, User, Settings } from 'lucide-react'
 import MobileNavigation from './MobileNavigation'
-import UserSettings from './UserSettings'
+import UserSettings from '../ui/UserSettings'
 import { useUser } from '@/contexts/UserContext'
 import { useTheme } from '@/contexts/ThemeContext'
 

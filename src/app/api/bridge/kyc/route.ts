@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
       Object.entries(documents).filter(([_, file]) => file !== null)
     )
 
+    // Submit KYC documents to Bridge (will return mock data if disabled)
     const result = await BridgeService.submitKYCDocuments(customerId, validDocuments)
 
     return NextResponse.json({
@@ -51,6 +52,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Get KYC status from Bridge (will return mock data if disabled)
     const status = await BridgeService.getKYCStatus(customerId)
 
     return NextResponse.json({

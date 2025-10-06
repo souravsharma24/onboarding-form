@@ -5,7 +5,8 @@ import { motion } from 'framer-motion'
 import { ArrowRight, CheckCircle, Edit3, Users, Send } from 'lucide-react'
 import { useUser } from '@/contexts/UserContext'
 import { useTheme } from '@/contexts/ThemeContext'
-import { useProgress } from '@/contexts/ProgressContext'
+import SimpleProgressBar from '@/components/progress/SimpleProgressBar'
+import OverallProgressBar from '@/components/progress/OverallProgressBar'
 
 interface Section {
   id: string
@@ -22,13 +23,13 @@ interface OnboardingData {
 }
 
 const defaultSections: Section[] = [
-  { id: 'your-info', title: 'Your Information', requiredFields: 11, completedFields: 0 },
+  { id: 'your-info', title: 'Your Information', requiredFields: 3, completedFields: 0 },
   { id: 'business-info', title: 'Business Information', requiredFields: 13, completedFields: 0 },
-  { id: 'ownership', title: 'Ownership and Management', requiredFields: 13, completedFields: 0 },
-  { id: 'docs', title: 'Business Documentation', requiredFields: 5, completedFields: 0 },
-  { id: 'funds', title: 'Source of Funds', requiredFields: 7, completedFields: 0 },
-  { id: 'compliance', title: 'Compliance and Business Activity', requiredFields: 11, completedFields: 0 },
-  { id: 'terms', title: 'Terms and Conditions', requiredFields: 6, completedFields: 0 },
+  { id: 'ownership', title: 'Ownership and Management', requiredFields: 16, completedFields: 0 },
+  { id: 'docs', title: 'Business Documentation', requiredFields: 4, completedFields: 0 },
+  { id: 'funds', title: 'Source of Funds', requiredFields: 3, completedFields: 0 },
+  { id: 'compliance', title: 'Compliance and Business Activity', requiredFields: 4, completedFields: 0 },
+  { id: 'terms', title: 'Terms and Conditions', requiredFields: 1, completedFields: 0 },
 ]
 
 interface OnboardingDashboardProps {
@@ -39,12 +40,6 @@ interface OnboardingDashboardProps {
 export default function OnboardingDashboard({ onNavigateToSection, onManageCollaborators }: OnboardingDashboardProps) {
   const { user } = useUser()
   const { theme } = useTheme()
-  const { progress } = useProgress()
-  
-  // Debug progress updates
-  useEffect(() => {
-    console.log('Dashboard: Progress updated', progress)
-  }, [progress])
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     companyName: 'GreenEnergy Traders Inc.',
     status: 'Draft',
@@ -66,63 +61,34 @@ export default function OnboardingDashboard({ onNavigateToSection, onManageColla
     }
   }, [])
 
-  // Listen for form data changes to update progress
+  // Listen for form data changes
   useEffect(() => {
     const handleDataChange = () => {
       // Force re-render when form data changes
       setOnboardingData(prev => ({ ...prev }))
     }
 
-    const handleProgressChange = (event: CustomEvent) => {
-      // Force re-render when progress changes
-      setOnboardingData(prev => ({ ...prev }))
-    }
-
     // Listen for storage events and custom events
     window.addEventListener('storage', handleDataChange)
     window.addEventListener('onboardingDataChanged', handleDataChange)
-    window.addEventListener('onboardingProgressChanged', handleProgressChange as EventListener)
 
     return () => {
       window.removeEventListener('storage', handleDataChange)
       window.removeEventListener('onboardingDataChanged', handleDataChange)
-      window.removeEventListener('onboardingProgressChanged', handleProgressChange as EventListener)
     }
   }, [])
 
   // Dashboard will automatically show progress from context
 
   const sectionCompletion = (section: Section) => {
-    // Map section IDs to step numbers
-    const sectionToStepMap: { [key: string]: number } = {
-      'your-info': 1,
-      'business-info': 3,
-      'ownership': 4,
-      'docs': 5,
-      'funds': 6,
-      'compliance': 7,
-      'terms': 9
-    }
-    
-    const stepNumber = sectionToStepMap[section.id]
-    if (stepNumber) {
-      // Use progress context for current step, fallback to 0 for other steps
-      if (stepNumber === progress.currentStep) {
-        return progress.currentStepProgress
-      } else {
-        // For completed steps, return 100%, for future steps return 0%
-        return stepNumber < progress.currentStep ? 100 : 0
-      }
-    }
-    
-    // Fallback to section-based calculation
     if (section.requiredFields === 0) return 100
     return Math.min(100, (section.completedFields / section.requiredFields) * 100)
   }
 
   const appCompletion = () => {
-    // Use progress from context
-    return progress.overallProgress
+    const totalRequired = onboardingData.sections.reduce((sum, section) => sum + section.requiredFields, 0)
+    const totalCompleted = onboardingData.sections.reduce((sum, section) => sum + section.completedFields, 0)
+    return totalRequired > 0 ? Math.min(100, (totalCompleted / totalRequired) * 100) : 0
   }
 
   const allSectionsComplete = () => {
@@ -146,7 +112,6 @@ export default function OnboardingDashboard({ onNavigateToSection, onManageColla
     }
   }
 
-  const formatPercent = (n: number) => `${Math.round(n)}%`
 
   if (!user) return null
 
@@ -171,6 +136,7 @@ export default function OnboardingDashboard({ onNavigateToSection, onManageColla
           Manage the Innovo Onboarding Application for {user.companyName}.
         </p>
       </motion.div>
+
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Onboarding Form Card */}
@@ -221,30 +187,21 @@ export default function OnboardingDashboard({ onNavigateToSection, onManageColla
                   }`}
                   onClick={() => onNavigateToSection(section.id)}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
+                  <div className="mb-2">
+                    <div className="flex items-center justify-between mb-2">
                       <h3 className={`font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                         {section.title}
                       </h3>
-                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                        {formatPercent(completion)} Complete
-                      </p>
+                      <button className={`p-2 rounded-full transition-colors ${
+                        theme === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-200'
+                      }`}>
+                        <ArrowRight className={`w-4 h-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`} />
+                      </button>
                     </div>
-                    <button className={`p-2 rounded-full transition-colors ${
-                      theme === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-200'
-                    }`}>
-                      <ArrowRight className={`w-4 h-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`} />
-                    </button>
-                  </div>
-                  <div className={`w-full rounded-full h-2 ${
-                    theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'
-                  }`}>
-                    <motion.div
-                      className="bg-primary-600 h-2 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${completion}%` }}
-                      transition={{ duration: 0.5, delay: 0.2 + index * 0.05 }}
-                    />
+                    {/* Progress bar for all sections - now spans full width */}
+                    <div className="mt-2">
+                      <SimpleProgressBar sectionId={section.id} />
+                    </div>
                   </div>
                 </motion.div>
               )
@@ -300,37 +257,9 @@ export default function OnboardingDashboard({ onNavigateToSection, onManageColla
             </button>
           </div>
 
-          {/* Progress Summary */}
-          <div className={`mt-6 p-4 rounded-lg ${
-            theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'
-          }`}>
-            <h4 className={`font-medium mb-2 ${
-              theme === 'dark' ? 'text-white' : 'text-gray-900'
-            }`}>
-              Overall Progress
-            </h4>
-            <div className="flex items-center justify-between mb-2">
-              <span className={`text-sm ${
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
-              }`}>
-                Application Completion
-              </span>
-              <span className={`text-sm font-medium ${
-                theme === 'dark' ? 'text-white' : 'text-gray-900'
-              }`}>
-                {formatPercent(appCompletion())}
-              </span>
-            </div>
-            <div className={`w-full rounded-full h-2 ${
-              theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200'
-            }`}>
-              <motion.div
-                className="bg-primary-600 h-2 rounded-full"
-                initial={{ width: 0 }}
-                animate={{ width: `${appCompletion()}%` }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-              />
-            </div>
+          {/* Overall Progress Section */}
+          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <OverallProgressBar />
           </div>
 
         </motion.div>

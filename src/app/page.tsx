@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DollarSign, CheckCircle, Clock } from 'lucide-react'
-import Sidebar from '@/components/Sidebar'
-import Header from '@/components/Header'
-import MetricCard from '@/components/MetricCard'
-import TabNavigation from '@/components/TabNavigation'
-import DataTable from '@/components/DataTable'
-import OnboardingManager from '@/components/OnboardingManager'
+import Sidebar from '@/components/layout/Sidebar'
+import Header from '@/components/layout/Header'
+import MetricCard from '@/components/ui/MetricCard'
+import TabNavigation from '@/components/layout/TabNavigation'
+import DataTable from '@/components/ui/DataTable'
+import OnboardingManager from '@/components/onboarding/OnboardingManager'
 import { mockData, getMetrics } from '@/lib/data'
 
 export default function Dashboard() {
